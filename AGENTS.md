@@ -83,27 +83,27 @@ top-level folder with a `pack.mcmeta` is one pack (`bed-tweaks/`,
 
 Test every change on a real server of the target version before committing:
 
-1. Download that version's `server.jar` from Mojang's manifest (check the
-   SHA-1) into a scratch folder, outside the repo. Ask the user first, since
-   it means downloading a file and setting `eula=true`.
-2. `server.properties`: `level-type=minecraft\:flat`, `server-ip=127.0.0.1`,
-   `enable-rcon=true`, an `rcon.port`/`rcon.password`, and non-default
-   ports, and `pause-when-empty-seconds=0` (an empty server otherwise stops
-   ticking after 60 s, so `load` and `tick` never run). Copy the pack into
-   `world/datapacks/`; symlinks are rejected.
-3. Start it in the background and drive it over RCON with
-   [`tools/rcon.py`](tools/rcon.py). It takes commands as arguments or one
-   per line on stdin (`#` lines are comments), and reads `RCON_PORT` and
-   `RCON_PASSWORD` from the environment:
+1. [`tools/test-server.sh`](tools/test-server.sh) runs a fresh flat-world
+   server with the packs (`start`, `sync` to copy them again and `/reload`,
+   `rcon`, `stop`); the `test-server` skill says how to use it. It caches
+   `server.jar` in `.cache/` (git-ignored). It downloads the jar only with
+   `--download` and accepts the EULA only with `--accept-eula`: ask the user
+   before passing either.
+2. Read the `ERROR`/`WARN` lines it prints after `start` and `sync`.
+3. Commands go through [`tools/rcon.py`](tools/rcon.py), as arguments or one
+   per line on stdin (`#` lines are comments):
 
    ```sh
-   RCON_PORT=25598 RCON_PASSWORD=localtest tools/rcon.py 'reload' 'function death_tweaks:config/show'
+   tools/test-server.sh rcon 'function death_tweaks:config/show'
    ```
 
-   Check `server.log` for `ERROR`/`WARN` after start and after each
-   `/reload`. If you write another RCON client, never send a packet before
-   the previous one has been answered: the server closes the connection if a
-   second packet reaches it before it has handled the first.
+   If you write another RCON client, never send a packet before the previous
+   one has been answered: the server closes the connection if a second
+   packet reaches it before it has handled the first. Server gotchas the
+   script already handles: `pause-when-empty-seconds=0` (an empty server
+   otherwise stops ticking after 60 s, so `load` and `tick` never run),
+   copying packs because symlinks are rejected, and `white-list=false`
+   (26.x whitelists by default).
 4. Run `forceload add 0 0` and summon test entities in a *separate* RCON
    batch from the commands that use them, since they may not be selectable
    the same tick.
@@ -112,8 +112,7 @@ Test every change on a real server of the target version before committing:
    verify rendered text by writing it into a custom name with an inline
    `set_name` modifier (`entity:"this"`). Say what could only be checked
    with a real player. The user can join the test server for that
-   (Direct Connect to `localhost:<port>`; use `online-mode=true` so they can
-   be opped by name).
+   (Direct Connect to `localhost:25599`) and be opped by name.
 
 ## Building and git
 
