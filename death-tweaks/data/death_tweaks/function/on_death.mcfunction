@@ -9,6 +9,7 @@ data modify storage death_tweaks:tmp death.dimension set from entity @s LastDeat
 data modify storage death_tweaks:tmp death.x set from entity @s LastDeathLocation.pos[0]
 data modify storage death_tweaks:tmp death.y set from entity @s LastDeathLocation.pos[1]
 data modify storage death_tweaks:tmp death.z set from entity @s LastDeathLocation.pos[2]
+function death_tweaks:chance
 scoreboard players set #xp_lost_levels death_tweaks.tmp 0
 scoreboard players set #xp_lost_points death_tweaks.tmp 0
 function death_tweaks:at_death_location with storage death_tweaks:tmp death

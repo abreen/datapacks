@@ -1,22 +1,22 @@
 # Death Tweaks
 
 A middle ground between `keep_inventory` and losing everything: when you die,
-each stack in your inventory has a random chance (30% by default) of being
-hit, and a hit stack loses a random number of its items (anywhere from one to
-all of them). You also lose a share of your experience. Everything else stays
-with you.
+each stack in your inventory has a random chance of being hit (by default
+10% on Peaceful, 20% on Easy, 30% on Normal and 50% on Hard), and a hit stack
+loses a random number of its items (anywhere from one to all of them). You
+also lose a share of your experience. Everything else stays with you.
 
 ## How it works
 
 On load, the pack turns on the `keep_inventory` game rule so vanilla never
 drops anything. A `deathCount` scoreboard detects deaths, and for each of the
 41 player slots (hotbar, inventory, armor, offhand) the pack rolls
-`random value 1..100` against the configured chance. For a hit stack of N
-items, a second roll of `random value 1..N` decides how many are lost; the
-rest stay in the slot. A single item (tools, armor, anything unstackable) is
-lost whole. Lost items are dropped at the player's death location (from
-`LastDeathLocation`, so it works even with `immediate_respawn`), or destroyed
-if configured.
+`random value 1..100` against the chance configured for the world's current
+difficulty. For a hit stack of N items, a second roll of `random value 1..N`
+decides how many are lost; the rest stay in the slot. A single item (tools,
+armor, anything unstackable) is lost whole. Lost items are dropped at the
+player's death location (from `LastDeathLocation`, so it works even with
+`immediate_respawn`), or destroyed if configured.
 
 The player also loses a configurable percentage (30% by default) of their
 experience. It's taken from their total experience *points*, not levels, so
@@ -50,7 +50,7 @@ Run these as an operator:
 | Command | Effect |
 | --- | --- |
 | `/function death_tweaks:config/show` | Show current settings |
-| `/function death_tweaks:config/set_chance {percent:30}` | Chance (0–100) that each stack is hit |
+| `/function death_tweaks:config/set_chance {difficulty:"normal",percent:30}` | Chance (0–100) that each stack is hit on that difficulty (`peaceful`, `easy`, `normal` or `hard`) |
 | `/function death_tweaks:config/partial_stacks_on` | A hit stack loses a random number of its items (default) |
 | `/function death_tweaks:config/partial_stacks_off` | A hit stack is lost whole |
 | `/function death_tweaks:config/set_xp_loss {percent:30}` | Percentage (0–100) of total experience points lost |

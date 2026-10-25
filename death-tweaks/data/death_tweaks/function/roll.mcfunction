@@ -8,4 +8,4 @@ $execute if score #vanishing_curse death_tweaks.config matches 1 if items entity
 $execute if items entity @s $(slot) #death_tweaks:protected run return 0
 
 execute store result score #roll death_tweaks.tmp run random value 1..100
-$execute if score #roll death_tweaks.tmp <= #chance death_tweaks.config run function death_tweaks:lose {slot:"$(slot)"}
+$execute if score #roll death_tweaks.tmp <= #chance death_tweaks.tmp run function death_tweaks:lose {slot:"$(slot)"}

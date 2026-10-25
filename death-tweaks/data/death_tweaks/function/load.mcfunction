@@ -6,7 +6,13 @@ scoreboard objectives add death_tweaks.config dummy
 scoreboard objectives add death_tweaks.tmp dummy
 
 # Defaults, only applied if not already configured
-execute unless score #chance death_tweaks.config matches 0.. run scoreboard players set #chance death_tweaks.config 30
+# Before per-difficulty chances there was one #chance; keep it as Normal's
+execute if score #chance death_tweaks.config matches 0.. unless score #chance_normal death_tweaks.config matches 0.. run scoreboard players operation #chance_normal death_tweaks.config = #chance death_tweaks.config
+scoreboard players reset #chance death_tweaks.config
+execute unless score #chance_peaceful death_tweaks.config matches 0.. run scoreboard players set #chance_peaceful death_tweaks.config 10
+execute unless score #chance_easy death_tweaks.config matches 0.. run scoreboard players set #chance_easy death_tweaks.config 20
+execute unless score #chance_normal death_tweaks.config matches 0.. run scoreboard players set #chance_normal death_tweaks.config 30
+execute unless score #chance_hard death_tweaks.config matches 0.. run scoreboard players set #chance_hard death_tweaks.config 50
 execute unless score #destroy death_tweaks.config matches 0.. run scoreboard players set #destroy death_tweaks.config 0
 execute unless score #vanishing_curse death_tweaks.config matches 0.. run scoreboard players set #vanishing_curse death_tweaks.config 1
 execute unless score #xp_loss death_tweaks.config matches 0.. run scoreboard players set #xp_loss death_tweaks.config 30
