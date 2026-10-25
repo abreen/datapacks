@@ -4,7 +4,7 @@ Minecraft: Java Edition data packs.
 
 | Pack | Description | Minecraft |
 | --- | --- | --- |
-| [stack-loss](stack-loss) | Keep inventory, but each stack has a chance to be lost on death | 26.3 |
+| [death-tweaks](death-tweaks) | Keep inventory, but lose some stacks and experience on death | 26.3 |
 
 ## Installing
 

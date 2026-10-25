@@ -1,7 +1,0 @@
-{
-  "pack": {
-    "description": "Keep inventory, but each stack has a chance to be lost on death",
-    "min_format": 121,
-    "max_format": 121
-  }
-}

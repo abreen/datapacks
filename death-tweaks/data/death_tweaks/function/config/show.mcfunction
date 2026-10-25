@@ -1,0 +1,6 @@
+tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Loss chance per stack: ",{score:{name:"#chance",objective:"death_tweaks.config"},color:"yellow"},"%"]
+tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Experience lost on death: ",{score:{name:"#xp_loss",objective:"death_tweaks.config"},color:"yellow"},"% of total points"]
+execute if score #destroy death_tweaks.config matches 0 run tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Lost stacks and experience are ",{text:"dropped",color:"yellow"}," at the death location"]
+execute if score #destroy death_tweaks.config matches 1 run tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Lost stacks and experience are ",{text:"destroyed",color:"red"}]
+execute if score #vanishing_curse death_tweaks.config matches 1 run tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Curse of Vanishing items are ",{text:"destroyed",color:"red"}]
+execute if score #vanishing_curse death_tweaks.config matches 0 run tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Curse of Vanishing items are ",{text:"kept",color:"yellow"}]

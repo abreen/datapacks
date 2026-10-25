@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "Keep inventory, but lose some stacks and experience on death",
+    "min_format": 121,
+    "max_format": 121
+  }
+}
