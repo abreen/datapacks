@@ -21,9 +21,11 @@ experience is dropped as orbs at the death location, or destroyed, following
 the same setting as lost stacks.
 
 After dying, the player gets a private message (only they can see it)
-listing each stack they lost, e.g. `12× Gold Ingot`, with `(destroyed)` or
-`(vanished)` after stacks that were deleted rather than dropped, followed by
-how many levels of experience they lost.
+listing each stack they dropped, e.g. `12× Gold Ingot`, under "You dropped
+these items:". Stacks that were deleted instead are listed in red under "These
+items were destroyed:", with `(vanished)` after Curse of Vanishing items. Then
+comes how much experience they dropped ("You dropped 5 levels of experience.")
+or, in red, how much was destroyed ("5 levels of experience were destroyed.").
 
 Also:
 
