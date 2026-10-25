@@ -4,6 +4,7 @@ Minecraft: Java Edition data packs.
 
 | Pack | Description | Minecraft |
 | --- | --- | --- |
+| [bed-tweaks](bed-tweaks) | Respawn at any bed you've placed, not just the last one | 26.3 |
 | [death-tweaks](death-tweaks) | Keep inventory, but lose some stacks and experience on death | 26.3 |
 
 ## Installing

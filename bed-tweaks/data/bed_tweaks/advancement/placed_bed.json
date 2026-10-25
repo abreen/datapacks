@@ -1,0 +1,16 @@
+{
+  "criteria": {
+    "placed_bed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_block",
+          "blocks": "#minecraft:beds"
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "bed_tweaks:bed/placed"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:environment_attribute_check",
+  "attribute": "minecraft:gameplay/bed_rule",
+  "value": {
+    "can_set_spawn": "always",
+    "can_sleep": "when_dark",
+    "error_message": {
+      "translate": "block.minecraft.bed.no_sleep"
+    }
+  }
+}

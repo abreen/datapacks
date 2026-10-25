@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Minecraft: Java Edition data packs that tweak vanilla behavior. Each
-top-level folder with a `pack.mcmeta` is one pack (currently just
+top-level folder with a `pack.mcmeta` is one pack (`bed-tweaks/`,
 `death-tweaks/`).
 
 ## Target version
@@ -65,6 +65,14 @@ top-level folder with a `pack.mcmeta` is one pack (currently just
 - `{nbt:…}` components render numbers in gold (syntax highlighting). Copy
   the value into a score and use a `score` component for plain text.
 - `experience_orb` `Value` is a short (wraps above 32767); `Count` is an int.
+- Loot conditions/predicates use `type:`, not `condition:`. An advancement's
+  `player` condition is one object, and entity predicate keys are namespaced
+  (`"minecraft:location"`).
+- The `slept_in_bed` trigger only fires for beds that can set a spawn point,
+  so never for straw beds; use the `minecraft.custom:minecraft.sleep_in_straw_bed`
+  stat as a scoreboard criterion.
+- `time query daytime` is gone (world clocks); `time query time` gives the
+  dimension's clock ticks.
 - Player NBT is read-only to `data modify`; change players with `/item`,
   `/xp`, etc. `item replace … from entity` and `execute if items` work on any
   entity with that slot.
@@ -80,7 +88,9 @@ Test every change on a real server of the target version before committing:
    it means downloading a file and setting `eula=true`.
 2. `server.properties`: `level-type=minecraft\:flat`, `server-ip=127.0.0.1`,
    `enable-rcon=true`, an `rcon.port`/`rcon.password`, and non-default
-   ports. Copy the pack into `world/datapacks/`; symlinks are rejected.
+   ports, and `pause-when-empty-seconds=0` (an empty server otherwise stops
+   ticking after 60 s, so `load` and `tick` never run). Copy the pack into
+   `world/datapacks/`; symlinks are rejected.
 3. Start it in the background and drive it over RCON with
    [`tools/rcon.py`](tools/rcon.py). It takes commands as arguments or one
    per line on stdin (`#` lines are comments), and reads `RCON_PORT` and

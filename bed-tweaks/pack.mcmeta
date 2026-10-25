@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "Respawn at any bed you've placed, not just the last one",
+    "min_format": 121,
+    "max_format": 121
+  }
+}
