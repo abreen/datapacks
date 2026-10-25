@@ -24,7 +24,7 @@ does `/summon minecraft:lightning_bolt` on the block above the rod.
 ## Charge
 
 The durability bar is the charge, counted in seconds. A new catch starts
-with 2 minutes, out of a maximum of 10. It drains one point a second,
+with 2 minutes, out of a maximum of 5. It drains one point a second,
 wherever the star is: in a chest, an ender chest or an unloaded chunk it is
 caught up the next time the pack sees it. When it reaches zero, the star
 fizzles out with a spark.
@@ -60,7 +60,7 @@ Run these as an operator:
 | --- | --- |
 | `/function boltcatcher:config/show` | Show current settings |
 | `/function boltcatcher:config/set_start_charge {seconds:120}` | Charge a new catch starts with (1–3600, never above the maximum) |
-| `/function boltcatcher:config/set_max_charge {seconds:600}` | Maximum charge (10–3600) for lightning caught from now on |
+| `/function boltcatcher:config/set_max_charge {seconds:300}` | Maximum charge (10–3600) for lightning caught from now on |
 | `/function boltcatcher:config/set_damage_bonus {seconds:2}` | Seconds added per heart of damage dealt (0–60) |
 | `/function boltcatcher:config/set_kill_bonus {seconds:5}` | Seconds added per kill (0–600) |
 | `/function boltcatcher:config/set_speed {percent:200}` | Speed while charged, as a percentage of normal (100–500) |

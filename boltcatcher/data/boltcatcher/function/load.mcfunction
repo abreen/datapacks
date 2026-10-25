@@ -10,7 +10,7 @@ scoreboard objectives add boltcatcher.id dummy
 
 # Defaults, only applied if not already configured
 execute unless score #start_charge boltcatcher.config matches 0.. run scoreboard players set #start_charge boltcatcher.config 120
-execute unless score #max_charge boltcatcher.config matches 0.. run scoreboard players set #max_charge boltcatcher.config 600
+execute unless score #max_charge boltcatcher.config matches 0.. run scoreboard players set #max_charge boltcatcher.config 300
 execute unless score #damage_bonus boltcatcher.config matches 0.. run scoreboard players set #damage_bonus boltcatcher.config 2
 execute unless score #kill_bonus boltcatcher.config matches 0.. run scoreboard players set #kill_bonus boltcatcher.config 5
 execute unless score #damage_percent boltcatcher.config matches 0.. run scoreboard players set #damage_percent boltcatcher.config 300

@@ -1,4 +1,4 @@
-# Usage: /function boltcatcher:config/set_max_charge {seconds:600}
+# Usage: /function boltcatcher:config/set_max_charge {seconds:300}
 # Applies to lightning caught from now on; each star keeps its own maximum
 $scoreboard players set #new boltcatcher.tmp $(seconds)
 execute if score #new boltcatcher.tmp matches ..9 run scoreboard players set #new boltcatcher.tmp 10
