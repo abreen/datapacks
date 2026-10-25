@@ -1,6 +1,4 @@
 tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Loss chance per stack: Peaceful ",{score:{name:"#chance_peaceful",objective:"death_tweaks.config"},color:"yellow"},"%, Easy ",{score:{name:"#chance_easy",objective:"death_tweaks.config"},color:"yellow"},"%, Normal ",{score:{name:"#chance_normal",objective:"death_tweaks.config"},color:"yellow"},"%, Hard ",{score:{name:"#chance_hard",objective:"death_tweaks.config"},color:"yellow"},"%"]
-execute if score #partial_stacks death_tweaks.config matches 1 run tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"A lost stack loses ",{text:"a random part",color:"yellow"}," of its items"]
-execute if score #partial_stacks death_tweaks.config matches 0 run tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"A lost stack loses ",{text:"all",color:"yellow"}," of its items"]
 tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Experience lost on death: ",{score:{name:"#xp_loss",objective:"death_tweaks.config"},color:"yellow"},"% of total points"]
 execute if score #destroy death_tweaks.config matches 0 run tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Lost stacks and experience are ",{text:"dropped",color:"yellow"}," at the death location"]
 execute if score #destroy death_tweaks.config matches 1 run tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Lost stacks and experience are ",{text:"destroyed",color:"red"}]

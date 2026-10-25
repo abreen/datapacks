@@ -9,6 +9,8 @@ scoreboard objectives add death_tweaks.tmp dummy
 # Before per-difficulty chances there was one #chance; keep it as Normal's
 execute if score #chance death_tweaks.config matches 0.. unless score #chance_normal death_tweaks.config matches 0.. run scoreboard players operation #chance_normal death_tweaks.config = #chance death_tweaks.config
 scoreboard players reset #chance death_tweaks.config
+# Partial stacks used to be optional; they are now always on
+scoreboard players reset #partial_stacks death_tweaks.config
 execute unless score #chance_peaceful death_tweaks.config matches 0.. run scoreboard players set #chance_peaceful death_tweaks.config 10
 execute unless score #chance_easy death_tweaks.config matches 0.. run scoreboard players set #chance_easy death_tweaks.config 20
 execute unless score #chance_normal death_tweaks.config matches 0.. run scoreboard players set #chance_normal death_tweaks.config 30
@@ -16,7 +18,6 @@ execute unless score #chance_hard death_tweaks.config matches 0.. run scoreboard
 execute unless score #destroy death_tweaks.config matches 0.. run scoreboard players set #destroy death_tweaks.config 0
 execute unless score #vanishing_curse death_tweaks.config matches 0.. run scoreboard players set #vanishing_curse death_tweaks.config 1
 execute unless score #xp_loss death_tweaks.config matches 0.. run scoreboard players set #xp_loss death_tweaks.config 30
-execute unless score #partial_stacks death_tweaks.config matches 0.. run scoreboard players set #partial_stacks death_tweaks.config 1
 
 # Constants for scoreboard math
 scoreboard players set #-1 death_tweaks.tmp -1

@@ -51,8 +51,6 @@ Run these as an operator:
 | --- | --- |
 | `/function death_tweaks:config/show` | Show current settings |
 | `/function death_tweaks:config/set_chance {difficulty:"normal",percent:30}` | Chance (0–100) that each stack is hit on that difficulty (`peaceful`, `easy`, `normal` or `hard`) |
-| `/function death_tweaks:config/partial_stacks_on` | A hit stack loses a random number of its items (default) |
-| `/function death_tweaks:config/partial_stacks_off` | A hit stack is lost whole |
 | `/function death_tweaks:config/set_xp_loss {percent:30}` | Percentage (0–100) of total experience points lost |
 | `/function death_tweaks:config/drop_lost_items` | Drop lost stacks and experience at the death location (default) |
 | `/function death_tweaks:config/destroy_lost_items` | Delete lost stacks and experience instead |
