@@ -1,5 +1,6 @@
 tellraw @s [{text:"[Stack Loss] ",color:"gold"},"Loss chance per stack: ",{score:{name:"#chance",objective:"stack_loss.config"},color:"yellow"},"%"]
-execute if score #destroy stack_loss.config matches 0 run tellraw @s [{text:"[Stack Loss] ",color:"gold"},"Lost stacks are ",{text:"dropped",color:"yellow"}," at the death location"]
-execute if score #destroy stack_loss.config matches 1 run tellraw @s [{text:"[Stack Loss] ",color:"gold"},"Lost stacks are ",{text:"destroyed",color:"red"}]
+tellraw @s [{text:"[Stack Loss] ",color:"gold"},"Experience lost on death: ",{score:{name:"#xp_loss",objective:"stack_loss.config"},color:"yellow"},"% of total points"]
+execute if score #destroy stack_loss.config matches 0 run tellraw @s [{text:"[Stack Loss] ",color:"gold"},"Lost stacks and experience are ",{text:"dropped",color:"yellow"}," at the death location"]
+execute if score #destroy stack_loss.config matches 1 run tellraw @s [{text:"[Stack Loss] ",color:"gold"},"Lost stacks and experience are ",{text:"destroyed",color:"red"}]
 execute if score #vanishing_curse stack_loss.config matches 1 run tellraw @s [{text:"[Stack Loss] ",color:"gold"},"Curse of Vanishing items are ",{text:"destroyed",color:"red"}]
 execute if score #vanishing_curse stack_loss.config matches 0 run tellraw @s [{text:"[Stack Loss] ",color:"gold"},"Curse of Vanishing items are ",{text:"kept",color:"yellow"}]

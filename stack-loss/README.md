@@ -13,9 +13,17 @@ drops anything. A `deathCount` scoreboard detects deaths, and for each of the
 at the player's death location (from `LastDeathLocation`, so it works even
 with `immediate_respawn`), or destroyed if configured.
 
+The player also loses a configurable percentage (30% by default) of their
+experience. It's taken from their total experience *points*, not levels, so
+the loss scales with level the way vanilla XP does: each level above 16 costs
+more points, so 30% of a level 30 player's XP is about 5 levels, not 9. Lost
+experience is dropped as orbs at the death location, or destroyed, following
+the same setting as lost stacks.
+
 After dying, the player gets a private message (only they can see it)
 listing each stack they lost, e.g. `12× Gold Ingot`, with `(destroyed)` or
-`(vanished)` after stacks that were deleted rather than dropped.
+`(vanished)` after stacks that were deleted rather than dropped, followed by
+how many levels of experience they lost.
 
 Also:
 
@@ -24,9 +32,8 @@ Also:
 - Items in the `#stack_loss:protected` item tag are never lost. It's empty by
   default; add items to it with another data pack (or by editing
   `data/stack_loss/tags/item/protected.json`).
-- If the death location is in an unloaded chunk, a lost stack stays in the
-  inventory instead of being deleted.
-- XP is kept, since `keep_inventory` keeps it.
+- If the death location is in an unloaded chunk, lost stacks and experience
+  are kept instead of being deleted.
 
 ## Configuration
 
@@ -36,8 +43,9 @@ Run these as an operator:
 | --- | --- |
 | `/function stack_loss:config/show` | Show current settings |
 | `/function stack_loss:config/set_chance {percent:30}` | Chance (0–100) that each stack is lost |
-| `/function stack_loss:config/drop_lost_items` | Drop lost stacks at the death location (default) |
-| `/function stack_loss:config/destroy_lost_items` | Delete lost stacks instead |
+| `/function stack_loss:config/set_xp_loss {percent:30}` | Percentage (0–100) of total experience points lost |
+| `/function stack_loss:config/drop_lost_items` | Drop lost stacks and experience at the death location (default) |
+| `/function stack_loss:config/destroy_lost_items` | Delete lost stacks and experience instead |
 | `/function stack_loss:config/vanishing_curse_on` | Destroy Curse of Vanishing items on death (default) |
 | `/function stack_loss:config/vanishing_curse_off` | Keep Curse of Vanishing items |
 

@@ -9,6 +9,8 @@ data modify storage stack_loss:tmp death.dimension set from entity @s LastDeathL
 data modify storage stack_loss:tmp death.x set from entity @s LastDeathLocation.pos[0]
 data modify storage stack_loss:tmp death.y set from entity @s LastDeathLocation.pos[1]
 data modify storage stack_loss:tmp death.z set from entity @s LastDeathLocation.pos[2]
+scoreboard players set #xp_lost_levels stack_loss.tmp 0
+scoreboard players set #xp_lost_points stack_loss.tmp 0
 function stack_loss:at_death_location with storage stack_loss:tmp death
 
 function stack_loss:notify
