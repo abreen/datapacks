@@ -5,6 +5,7 @@ Minecraft: Java Edition data packs.
 | Pack | Description | Minecraft |
 | --- | --- | --- |
 | [bed-tweaks](bed-tweaks) | Respawn at any bed you've placed, not just the last one | 26.3 |
+| [boltcatcher](boltcatcher) | Catch lightning in a hopper and fight to keep its speed and low-gravity powers charged | 26.3 |
 | [death-tweaks](death-tweaks) | Keep inventory, but lose some items and experience on death | 26.3 |
 
 ## Installing

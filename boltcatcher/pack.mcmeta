@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "Catch lightning with a rod, a redstone block and a hopper, then fight to keep it charged",
+    "min_format": 121,
+    "max_format": 121
+  }
+}
