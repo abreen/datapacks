@@ -88,7 +88,9 @@ Test every change on a real server of the target version before committing:
    `rcon`, `stop`); the `test-server` skill says how to use it. It caches
    `server.jar` in `.cache/` (git-ignored). It downloads the jar only with
    `--download` and accepts the EULA only with `--accept-eula`: ask the user
-   before passing either.
+   before passing either. Each pack can have a `test/setup.mcfunction`
+   (outside `data/`, so it isn't shipped) that gives a joining player its
+   test items; packs use separate inventory slots.
 2. Read the `ERROR`/`WARN` lines it prints after `start` and `sync`.
 3. Commands go through [`tools/rcon.py`](tools/rcon.py), as arguments or one
    per line on stdin (`#` lines are comments):

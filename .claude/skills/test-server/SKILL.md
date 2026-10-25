@@ -40,6 +40,20 @@ tools/test-server.sh start death-tweaks
    `localhost:25599`. If they ask to be opped, run `op <name>` with the name
    they give. The whitelist is off.
 
+## Player setup
+
+When a player first joins, each pack's `test/setup.mcfunction` runs as them
+(a generated `test-setup` pack does this), so they arrive with the pack's
+test items. `tools/test-server.sh setup <player>` clears their inventory and
+runs it again, e.g. to restock after a death test.
+
+When adding or changing a setup file: it's a plain function run as the
+player, outside `data/` so it never ships. Each pack fills its own
+inventory slots so they don't overlap (bed-tweaks: `hotbar.0`–`3`;
+death-tweaks: everything else). Check item counts against the max stack
+size (straw beds stack to 16) by running the lines on an armor stand's
+`weapon.mainhand`; an oversized count fails the command.
+
 ## Stopping
 
 `tools/test-server.sh stop`. Stop the server when the user is done with it,

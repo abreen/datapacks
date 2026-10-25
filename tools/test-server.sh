@@ -5,21 +5,25 @@
 #   tools/test-server.sh start [--download] [--accept-eula] [pack ...]
 #   tools/test-server.sh sync                 copy the packs again and /reload
 #   tools/test-server.sh rcon 'command' ...   same arguments as tools/rcon.py
+#   tools/test-server.sh setup <player>       clear and refill their inventory
 #   tools/test-server.sh status
 #   tools/test-server.sh stop
 #
 # start makes a fresh flat world with every pack (or only the ones named).
 # The server.jar is cached in .cache/; downloading it needs --download, and
 # the first start needs --accept-eula (Mojang's EULA), which is remembered.
+# Each player who joins first gets every pack's test/setup.mcfunction run
+# as them (test items, levels), through a generated test-setup pack.
 #
 # Environment: MC_VERSION (default 26.3), TEST_SERVER_DIR (default
 # $TMPDIR/datapacks-test-server), SERVER_PORT (25599), RCON_PORT (25598),
-# RCON_PASSWORD (localtest).
+# RCON_PASSWORD (localtest), PACK_FORMAT (121, for the setup pack).
 set -e
 cd "$(dirname "$0")/.."
 REPO=$(pwd)
 
 MC_VERSION=${MC_VERSION:-26.3}
+PACK_FORMAT=${PACK_FORMAT:-121}
 DIR=${TEST_SERVER_DIR:-${TMPDIR:-/tmp}/datapacks-test-server}
 DIR=${DIR%/}
 SERVER_PORT=${SERVER_PORT:-25599}
@@ -75,6 +79,31 @@ copy_packs() {
   for pack in $(cat "$DIR/packs"); do
     cp -R "$REPO/$pack" "$DIR/world/datapacks/"
   done
+  make_setup_pack
+}
+
+# Generates a pack that runs each pack's test/setup.mcfunction as every
+# player the first time they join (and on `setup`). It's never shipped:
+# build.sh only zips data/.
+make_setup_pack() {
+  out=$DIR/world/datapacks/test-setup
+  mkdir -p "$out/data/test_setup/function" "$out/data/minecraft/tags/function"
+  printf '{"pack":{"description":"Test server setup","min_format":%s,"max_format":%s}}\n' \
+    "$PACK_FORMAT" "$PACK_FORMAT" > "$out/pack.mcmeta"
+  echo '{"values":["test_setup:tick"]}' > "$out/data/minecraft/tags/function/tick.json"
+  echo 'execute as @a[tag=!test_setup.done] run function test_setup:join' \
+    > "$out/data/test_setup/function/tick.mcfunction"
+  join=$out/data/test_setup/function/join.mcfunction
+  printf 'tag @s add test_setup.done\nclear @s\n' > "$join"
+  names=
+  for pack in $(cat "$DIR/packs"); do
+    [ -f "$REPO/$pack/test/setup.mcfunction" ] || continue
+    ns=$(echo "$pack" | tr - _)
+    cp "$REPO/$pack/test/setup.mcfunction" "$out/data/test_setup/function/$ns.mcfunction"
+    echo "function test_setup:$ns" >> "$join"
+    names="$names${names:+, }$pack"
+  done
+  echo "tellraw @s {text:\"Test setup done: ${names:-no packs have one}\",color:\"gray\",italic:true}" >> "$join"
 }
 
 start() {
@@ -179,6 +208,10 @@ case $cmd in
   sync) sync ;;
   stop) stop ;;
   rcon) running || die "not running"; tools/rcon.py "$@" ;;
+  setup)
+    running || die "not running"
+    [ $# -eq 1 ] || die "usage: setup <player>"
+    tools/rcon.py "execute as $1 run function test_setup:join" ;;
   status)
     if running; then
       echo "Running in $DIR with: $(cat "$DIR/packs")"
@@ -186,5 +219,5 @@ case $cmd in
     else
       echo "Not running"
     fi ;;
-  *) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
