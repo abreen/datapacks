@@ -1,6 +1,6 @@
 # Runs as the player, at the bottom center of their new bed's foot. Adds the
 # bed to storage bed_tweaks:beds and marks it with a marker that removes it
-# again if the bed is broken
+# again if the bed is broken. Succeeds if it did
 execute unless predicate bed_tweaks:beds_work run return 0
 
 # Ids count up from 1. Markers left behind by an uninstall can't clash with
@@ -22,3 +22,4 @@ function bed_tweaks:bed/name
 data modify storage bed_tweaks:beds list append from storage bed_tweaks:tmp new
 
 tellraw @s {text:"You can now respawn at this bed.",color:"gray",italic:true}
+return 1

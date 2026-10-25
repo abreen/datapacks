@@ -76,6 +76,8 @@ top-level folder with a `pack.mcmeta` is one pack (`bed-tweaks/`,
 - Player NBT is read-only to `data modify`; change players with `/item`,
   `/xp`, etc. `item replace … from entity` and `execute if items` work on any
   entity with that slot.
+- `execute if function` can't pass macro arguments (a parse error); use
+  `execute store result score … run function f {…}` and test the score.
 - With `keep_inventory` on, a dead player still matches `@a`, and their
   `LastDeathLocation` is reliable even after an immediate respawn.
 
