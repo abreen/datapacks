@@ -76,7 +76,7 @@ right away.
 Run `/function boltcatcher:uninstall`. This takes the powers away from online
 holders and removes the pack's scoreboards, storage, boss bars and markers.
 Then disable the pack with `/datapack disable` and run `/reload`. Caught
-Lightning left in the world stays as an inert item. A holder who is offline
+Lightning left in the world stays a Nether Star. A holder who is offline
 during the uninstall keeps the speed, damage and gravity changes, so
 uninstall while everyone is online.
 
@@ -86,9 +86,9 @@ Built for Minecraft 26.3 (data pack format 121). It uses the `gravity`,
 `attack_damage`, `fall_damage_multiplier` and `step_height` attributes,
 item components and macros, so it won't load on older versions.
 
-The star is a goat horn with no instrument, drawn with the Nether Star
-model, so it can't be crafted into a beacon or used to power one. Two stars
-put together in a crafting grid, a grindstone or an anvil merge like
-damaged tools, and the result is a plain goat horn, so don't combine them.
+The star is a real Nether Star, so it can be crafted into a beacon or used
+to power one, which uses it up. Two stars put together in a crafting grid
+merge like damaged tools into one plain Nether Star with no charge.
+
 Damage dealt counts the `damage_dealt` statistic, which may not include
 damage from arrows and tridents; kills by any means count.
