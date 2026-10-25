@@ -10,6 +10,7 @@ execute unless score #chance death_tweaks.config matches 0.. run scoreboard play
 execute unless score #destroy death_tweaks.config matches 0.. run scoreboard players set #destroy death_tweaks.config 0
 execute unless score #vanishing_curse death_tweaks.config matches 0.. run scoreboard players set #vanishing_curse death_tweaks.config 1
 execute unless score #xp_loss death_tweaks.config matches 0.. run scoreboard players set #xp_loss death_tweaks.config 30
+execute unless score #partial_stacks death_tweaks.config matches 0.. run scoreboard players set #partial_stacks death_tweaks.config 1
 
 # Constants for scoreboard math
 scoreboard players set #-1 death_tweaks.tmp -1
