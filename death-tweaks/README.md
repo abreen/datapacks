@@ -40,6 +40,9 @@ Also:
 - Items in the `#death_tweaks:protected` item tag are never lost. It's empty by
   default; add items to it with another data pack (or by editing
   `data/death_tweaks/tags/item/protected.json`).
+- When lost stacks are destroyed, a lost **shulker box** is still destroyed,
+  but its contents are dropped at the death location (and listed under "You
+  dropped these items:") instead of being deleted with it.
 - If the death location is in an unloaded chunk, lost stacks and experience
   are kept instead of being deleted.
 
@@ -53,7 +56,7 @@ Run these as an operator:
 | `/function death_tweaks:config/set_chance {difficulty:"normal",percent:30}` | Chance (0–100) that each stack is hit on that difficulty (`peaceful`, `easy`, `normal` or `hard`) |
 | `/function death_tweaks:config/set_xp_loss {percent:30}` | Percentage (0–100) of total experience points lost |
 | `/function death_tweaks:config/drop_lost_items` | Drop lost stacks and experience at the death location (default) |
-| `/function death_tweaks:config/destroy_lost_items` | Delete lost stacks and experience instead |
+| `/function death_tweaks:config/destroy_lost_items` | Delete lost stacks and experience instead (shulker boxes still drop their contents) |
 | `/function death_tweaks:config/vanishing_curse_on` | Destroy Curse of Vanishing items on death (default) |
 | `/function death_tweaks:config/vanishing_curse_off` | Keep Curse of Vanishing items |
 

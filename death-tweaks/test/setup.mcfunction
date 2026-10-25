@@ -1,7 +1,8 @@
 # Test server only: runs as each player on their first join. Fills every
 # slot except hotbar.0-3 (bed-tweaks' setup) with a mix of stacks to lose:
 # full and partial stacks, unstackables, a renamed item, a Curse of
-# Vanishing item, worn armor, and enough levels to see the XP loss.
+# Vanishing item, a filled shulker box, worn armor, and enough levels to
+# see the XP loss.
 item replace entity @s hotbar.4 with minecraft:diamond_sword[enchantments={sharpness:5}]
 item replace entity @s hotbar.5 with minecraft:diamond_pickaxe[enchantments={vanishing_curse:1}]
 item replace entity @s hotbar.6 with minecraft:cooked_beef 32
@@ -36,7 +37,7 @@ item replace entity @s inventory.20 with minecraft:shears
 item replace entity @s inventory.21 with minecraft:flint_and_steel
 item replace entity @s inventory.22 with minecraft:white_wool 64
 item replace entity @s inventory.23 with minecraft:string 23
-item replace entity @s inventory.24 with minecraft:bone 30
+item replace entity @s inventory.24 with minecraft:red_shulker_box[container=[{slot:0,item:{id:"minecraft:diamond",count:7}},{slot:4,item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_name":{text:"Backup Blade",italic:false}}}},{slot:26,item:{id:"minecraft:bone",count:30}}]]
 item replace entity @s inventory.25 with minecraft:rotten_flesh 41
 item replace entity @s inventory.26 with minecraft:totem_of_undying
 xp set @s 30 levels
