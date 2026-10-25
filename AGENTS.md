@@ -92,7 +92,9 @@ Test every change on a real server of the target version before committing:
    `--download` and accepts the EULA only with `--accept-eula`: ask the user
    before passing either. Each pack can have a `test/setup.mcfunction`
    (outside `data/`, so it isn't shipped) that gives a joining player its
-   test items; packs use separate inventory slots.
+   test items; packs use separate inventory slots. A `test/world.mcfunction`
+   runs once after `start`, at the world spawn, to build test structures;
+   any other `test/<name>.mcfunction` is `test_setup:<namespace>/<name>`.
 2. Read the `ERROR`/`WARN` lines it prints after `start` and `sync`.
 3. Commands go through [`tools/rcon.py`](tools/rcon.py), as arguments or one
    per line on stdin (`#` lines are comments):

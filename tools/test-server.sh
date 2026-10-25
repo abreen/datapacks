@@ -13,7 +13,10 @@
 # The server.jar is cached in .cache/; downloading it needs --download, and
 # the first start needs --accept-eula (Mojang's EULA), which is remembered.
 # Each player who joins first gets every pack's test/setup.mcfunction run
-# as them (test items, levels), through a generated test-setup pack.
+# as them (test items, levels), through a generated test-setup pack. Each
+# pack's test/world.mcfunction runs once after start, at the world spawn
+# (test builds). Every other test/<name>.mcfunction is available as
+# /function test_setup:<namespace>/<name>.
 #
 # Environment: MC_VERSION (default 26.3), TEST_SERVER_DIR (default
 # $TMPDIR/datapacks-test-server), SERVER_PORT (25599), RCON_PORT (25598),
@@ -82,9 +85,9 @@ copy_packs() {
   make_setup_pack
 }
 
-# Generates a pack that runs each pack's test/setup.mcfunction as every
-# player the first time they join (and on `setup`). It's never shipped:
-# build.sh only zips data/.
+# Generates a pack with every pack's test/*.mcfunction: setup runs as each
+# player the first time they join (and on `setup`), world runs once after
+# start. It's never shipped: build.sh only zips data/.
 make_setup_pack() {
   out=$DIR/world/datapacks/test-setup
   mkdir -p "$out/data/test_setup/function" "$out/data/minecraft/tags/function"
@@ -94,13 +97,20 @@ make_setup_pack() {
   echo 'execute as @a[tag=!test_setup.done] run function test_setup:join' \
     > "$out/data/test_setup/function/tick.mcfunction"
   join=$out/data/test_setup/function/join.mcfunction
+  world=$out/data/test_setup/function/world.mcfunction
   printf 'tag @s add test_setup.done\nclear @s\n' > "$join"
+  : > "$world"
   names=
   for pack in $(cat "$DIR/packs"); do
-    [ -f "$REPO/$pack/test/setup.mcfunction" ] || continue
     ns=$(echo "$pack" | tr - _)
-    cp "$REPO/$pack/test/setup.mcfunction" "$out/data/test_setup/function/$ns.mcfunction"
-    echo "function test_setup:$ns" >> "$join"
+    for f in "$REPO/$pack"/test/*.mcfunction; do
+      [ -f "$f" ] || continue
+      mkdir -p "$out/data/test_setup/function/$ns"
+      cp "$f" "$out/data/test_setup/function/$ns/"
+    done
+    [ -f "$REPO/$pack/test/world.mcfunction" ] && echo "function test_setup:$ns/world" >> "$world"
+    [ -f "$REPO/$pack/test/setup.mcfunction" ] || continue
+    echo "function test_setup:$ns/setup" >> "$join"
     names="$names${names:+, }$pack"
   done
   echo "tellraw @s {text:\"Test setup done: ${names:-no packs have one}\",color:\"gray\",italic:true}" >> "$join"
@@ -171,6 +181,9 @@ EOF
     [ $i -le 240 ] || die "server didn't start within 2 minutes; see $DIR/server.log"
     sleep 0.5
   done
+  # RCON commands run at the world spawn. The chunk must be loaded before
+  # the world setups build there, so force-load it in a separate command.
+  tools/rcon.py 'forceload add ~ ~' 'function test_setup:world' > /dev/null
   echo "Started Minecraft $MC_VERSION in $DIR with: $*"
   echo "Join at localhost:$SERVER_PORT; RCON on port $RCON_PORT"
   out=$(problems 0)

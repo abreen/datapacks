@@ -54,6 +54,16 @@ death-tweaks: everything else). Check item counts against the max stack
 size (straw beds stack to 16) by running the lines on an armor stand's
 `weapon.mainhand`; an oversized count fails the command.
 
+## World setup
+
+Right after `start`, each pack's `test/world.mcfunction` runs once at the
+world spawn (its chunk is force-loaded first), for things the world should
+already have built, like boltcatcher's catcher 3 blocks east of spawn. It
+doesn't run again on `sync`, so restart to rebuild. Any other
+`test/<name>.mcfunction` can be run as `test_setup:<namespace>/<name>`,
+e.g. `function test_setup:boltcatcher/strike` strikes that catcher with
+lightning.
+
 ## Stopping
 
 `tools/test-server.sh stop`. Stop the server when the user is done with it,
