@@ -13,6 +13,10 @@ drops anything. A `deathCount` scoreboard detects deaths, and for each of the
 at the player's death location (from `LastDeathLocation`, so it works even
 with `immediate_respawn`), or destroyed if configured.
 
+After dying, the player gets a private message (only they can see it)
+listing each stack they lost, e.g. `12× Gold Ingot`, with `(destroyed)` or
+`(vanished)` after stacks that were deleted rather than dropped.
+
 Also:
 
 - Items with **Curse of Vanishing** are destroyed on death, as they would be

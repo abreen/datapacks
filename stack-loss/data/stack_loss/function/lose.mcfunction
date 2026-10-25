@@ -1,8 +1,8 @@
 # Removes one slot's stack, dropping it at the current position unless
 # configured to destroy it. Argument: slot
-$execute if score #destroy stack_loss.config matches 1 run return run item replace entity @s $(slot) with air
+$execute if score #destroy stack_loss.config matches 1 run return run function stack_loss:destroy {slot:"$(slot)",tag:"stack_loss.destroyed"}
 
-summon item ~ ~ ~ {Item:{id:"minecraft:stone",count:1},PickupDelay:40s,Tags:["stack_loss.new"]}
+summon item ~ ~ ~ {Item:{id:"minecraft:stone",count:1},PickupDelay:40s,Tags:["stack_loss.new","stack_loss.lost","stack_loss.dropped"]}
 $item replace entity @e[type=item,tag=stack_loss.new,limit=1] contents from entity @s $(slot)
 
 # If the drop couldn't spawn (e.g. death location is in an unloaded chunk),

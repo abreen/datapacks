@@ -3,7 +3,7 @@ $execute unless items entity @s $(slot) * run return 0
 
 # Vanilla destroys Curse of Vanishing items on death only when keep_inventory
 # is off, so emulate that here
-$execute if score #vanishing_curse stack_loss.config matches 1 if items entity @s $(slot) *[minecraft:enchantments~[{enchantments:"minecraft:vanishing_curse"}]] run return run item replace entity @s $(slot) with air
+$execute if score #vanishing_curse stack_loss.config matches 1 if items entity @s $(slot) *[minecraft:enchantments~[{enchantments:"minecraft:vanishing_curse"}]] run return run function stack_loss:destroy {slot:"$(slot)",tag:"stack_loss.vanished"}
 
 $execute if items entity @s $(slot) #stack_loss:protected run return 0
 
