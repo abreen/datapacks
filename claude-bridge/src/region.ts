@@ -7,7 +7,8 @@ import { readNbt, type Nbt } from "./nbt";
 type Compound = { [key: string]: Nbt };
 type Section = { palette: string[]; data?: BigInt64Array };
 
-const DIMENSION_DIRS: Record<string, string> = {
+// Where worlds saved before 26.x keep each dimension's region files
+const LEGACY_DIRS: Record<string, string> = {
   "minecraft:overworld": "region",
   "minecraft:the_nether": join("DIM-1", "region"),
   "minecraft:the_end": join("DIM1", "region"),
@@ -15,9 +16,14 @@ const DIMENSION_DIRS: Record<string, string> = {
 
 export class World {
   private chunks = new Map<string, Map<number, Section> | null>();
+  private regionDir: string;
 
-  constructor(private dir: string, private dimension = "minecraft:overworld") {
-    if (!DIMENSION_DIRS[dimension]) throw new Error(`unknown dimension ${dimension}`);
+  constructor(dir: string, dimension = "minecraft:overworld") {
+    const match = /^([a-z0-9_.-]+):([a-z0-9_./-]+)$/.exec(dimension);
+    if (!match) throw new Error(`bad dimension ${dimension}`);
+    // 26.x: <world>/dimensions/<namespace>/<path>/region
+    this.regionDir = join(dir, "dimensions", match[1], match[2], "region");
+    if (!existsSync(this.regionDir) && LEGACY_DIRS[dimension]) this.regionDir = join(dir, LEGACY_DIRS[dimension]);
   }
 
   /** The block id at a position, or null if its chunk was never saved. */
@@ -45,7 +51,7 @@ export class World {
   }
 
   private load(cx: number, cz: number): Map<number, Section> | null {
-    const file = join(this.dir, DIMENSION_DIRS[this.dimension], `r.${cx >> 5}.${cz >> 5}.mca`);
+    const file = join(this.regionDir, `r.${cx >> 5}.${cz >> 5}.mca`);
     if (!existsSync(file)) return null;
     const region = readFileSync(file);
     const at = 4 * ((cx & 31) + (cz & 31) * 32);
@@ -64,11 +70,22 @@ export class World {
     for (const s of (root.sections ?? []) as Compound[]) {
       const states = s.block_states as Compound | undefined;
       if (!states) continue;
-      const palette = (states.palette as Compound[]).map((p) => p.Name as string);
+      const palette = (states.palette as Nbt[]).map(blockId);
       sections.set(s.Y as number, { palette, data: states.data as BigInt64Array | undefined });
     }
     return sections;
   }
+}
+
+/**
+ * A palette entry's block id. 26.x saves a state without properties as a
+ * bare string and one with properties as {id, properties}; older worlds use
+ * {Name, Properties}.
+ */
+function blockId(entry: Nbt): string {
+  if (typeof entry === "string") return entry;
+  const c = entry as Compound;
+  return (c.id ?? c.Name) as string;
 }
 
 export type Box = { x1: number; y1: number; z1: number; x2: number; y2: number; z2: number };

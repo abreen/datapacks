@@ -10,6 +10,11 @@ export function readNbt(buf: Buffer): Nbt {
   return r.payload(type);
 }
 
+function unwrap(c: { [key: string]: Nbt }): Nbt {
+  const keys = Object.keys(c);
+  return keys.length === 1 && keys[0] === "" ? c[""] : c;
+}
+
 class Reader {
   private pos = 0;
   constructor(private buf: Buffer) {}
@@ -70,6 +75,9 @@ class Reader {
         const n = this.int();
         const list: Nbt[] = [];
         for (let i = 0; i < n; i++) list.push(this.payload(itemType));
+        // 26.x stores a list with mixed element types as a list of
+        // compounds, wrapping each non-compound element as {"": value}
+        if (itemType === 10) return list.map((e) => unwrap(e as { [key: string]: Nbt }));
         return list;
       }
       case 10: {
