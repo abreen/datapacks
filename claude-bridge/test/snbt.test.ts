@@ -14,3 +14,8 @@ test("strings are quoted and escaped", () => {
 test("keys that need quotes get them", () => {
   expect(toSnbt({ "a b": [1, "x"] })).toBe('{"a b":[1,"x"]}');
 });
+
+test("big whole numbers become longs, and too big ones are refused", () => {
+  expect(toSnbt(2 ** 31)).toBe("2147483648L");
+  expect(() => toSnbt(1e21)).toThrow("too big");
+});

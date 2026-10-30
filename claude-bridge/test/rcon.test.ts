@@ -1,34 +1,14 @@
 import { afterAll, expect, test } from "bun:test";
-import { createServer, type Socket } from "node:net";
-import { Rcon, encode } from "../src/rcon";
+import { Rcon } from "../src/rcon";
+import { fakeServer } from "./fake";
 
-// A fake server that behaves like Minecraft's: one reply per packet, long
-// replies split in two, and "Unknown request" for unknown packet types
-const fake = createServer((socket: Socket) => {
-  let buffer = Buffer.alloc(0);
-  socket.on("data", (chunk) => {
-    buffer = Buffer.concat([buffer, chunk]);
-    while (buffer.length >= 4 && buffer.length >= 4 + buffer.readInt32LE(0)) {
-      const length = buffer.readInt32LE(0);
-      const id = buffer.readInt32LE(4);
-      const type = buffer.readInt32LE(8);
-      const body = buffer.subarray(12, 4 + length - 2).toString();
-      buffer = buffer.subarray(4 + length);
-      if (type === 3) socket.write(encode(body === "secret" ? id : -1, 2, ""));
-      else if (type === 2 && body === "long") {
-        socket.write(encode(id, 0, "x".repeat(4096)));
-        socket.write(encode(id, 0, "y"));
-      } else if (type === 2 && body === "two") {
-        socket.write(encode(id, 0, "Running function f"));
-        socket.write(encode(id, 0, "Function f returned 1"));
-      } else if (type === 2) socket.write(encode(id, 0, `ran ${body}`));
-      else socket.write(encode(id, 0, "Unknown request"));
-    }
-  });
+const { server, port } = await fakeServer((command) => {
+  if (command === "long") return ["x".repeat(4096), "y"];
+  if (command === "two") return ["Running function f", "Function f returned 1"];
+  if (command === "hang") return null;
+  return `ran ${command}`;
 });
-await new Promise<void>((r) => fake.listen(0, "127.0.0.1", r));
-const port = (fake.address() as { port: number }).port;
-afterAll(() => fake.close());
+afterAll(() => server.close());
 
 test("runs commands in order", async () => {
   const rcon = new Rcon("127.0.0.1", port, "secret");
@@ -52,4 +32,33 @@ test("puts separate messages on their own lines", async () => {
 test("rejects a wrong password", async () => {
   const rcon = new Rcon("127.0.0.1", port, "nope");
   await expect(rcon.run("a")).rejects.toThrow("wrong password");
+});
+
+test("refuses a command too long for the server", async () => {
+  const rcon = new Rcon("127.0.0.1", port, "secret");
+  await expect(rcon.run("say " + "x".repeat(2000))).rejects.toThrow("RCON allows");
+  // The connection is still usable
+  expect(await rcon.run("a")).toBe("ran a");
+  rcon.close();
+});
+
+test("times out when the server doesn't answer, then recovers", async () => {
+  const rcon = new Rcon("127.0.0.1", port, "secret", 200);
+  await expect(rcon.run("hang")).rejects.toThrow("didn't answer");
+  expect(await rcon.run("a")).toBe("ran a");
+  rcon.close();
+});
+
+test("exclusive keeps other commands out", async () => {
+  const rcon = new Rcon("127.0.0.1", port, "secret");
+  const order: string[] = [];
+  const first = rcon.exclusive(async (run) => {
+    order.push(await run("1"));
+    await Bun.sleep(20);
+    order.push(await run("2"));
+  });
+  const second = rcon.run("3").then((r) => order.push(r));
+  await Promise.all([first, second]);
+  expect(order).toEqual(["ran 1", "ran 2", "ran 3"]);
+  rcon.close();
 });

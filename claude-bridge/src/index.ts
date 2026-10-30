@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { Rcon } from "./rcon";
-import { callApi, players, say } from "./minecraft";
+import { callApi, players, runCommands, say } from "./minecraft";
 
 const password = process.env.RCON_PASSWORD;
 if (!password) {
@@ -27,21 +27,17 @@ server.registerTool(
   "run_commands",
   {
     description:
-      "Run Minecraft commands on the server console (no leading slash), in order, and return each response. Commands run at the world spawn as the server.",
+      "Run Minecraft commands on the server console (no leading slash), in order, and return each response. Stops at the first command that fails to send. Commands run at the world spawn as the server. Refused while claude_api:config/disable is on.",
     inputSchema: { commands: z.array(z.string()).min(1) },
   },
-  async ({ commands }) => {
-    const out = [];
-    for (const command of commands) out.push({ command, response: await rcon.run(command) });
-    return text(out);
-  },
+  async ({ commands }) => text(await runCommands(rcon, commands)),
 );
 
 server.registerTool(
   "call_api",
   {
     description:
-      "Call a claude_api data pack function, e.g. name \"fill\" with args {x1,y1,z1,x2,y2,z2,block}. Returns its result from storage claude_api:out. Functions: ping, test_block {x,y,z,block}, setblock {x,y,z,block}, fill {x1,y1,z1,x2,y2,z2,block}.",
+      "Call a claude_api data pack function, e.g. name \"fill\" with args {x1,y1,z1,x2,y2,z2,block}. Returns its result from storage claude_api:out (null if the call failed). Arguments are whole numbers or strings without spaces. Functions: ping, test_block {x,y,z,block}, setblock {x,y,z,block}, fill {x1,y1,z1,x2,y2,z2,block}.",
     inputSchema: {
       name: z.string(),
       args: z.record(z.string(), z.unknown()).optional(),

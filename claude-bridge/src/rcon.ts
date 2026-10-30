@@ -9,10 +9,16 @@ const COMMAND = 2;
 // where a multi-packet response ends
 const SENTINEL_TYPE = 0;
 const SENTINEL_ID = 0x7fff;
-// The server splits a response body into packets of this many bytes
+// The server splits a response body into packets of this many characters
 const MAX_BODY = 4096;
+// The server reads each request into a buffer this size and drops the
+// connection if a packet doesn't fit
+const MAX_REQUEST = 1460;
+const TIMEOUT_MS = 10_000;
 
 type Packet = { id: number; body: string };
+type Waiter = { resolve: (p: Packet) => void; reject: (e: Error) => void };
+export type Run = (command: string) => Promise<string>;
 
 export function encode(id: number, type: number, body: string): Buffer {
   const payload = Buffer.from(body, "utf8");
@@ -27,7 +33,7 @@ export function encode(id: number, type: number, body: string): Buffer {
 export class Rcon {
   private socket?: Socket;
   private buffer = Buffer.alloc(0);
-  private waiting: ((p: Packet) => void)[] = [];
+  private waiting: Waiter[] = [];
   private received: Packet[] = [];
   private queue: Promise<unknown> = Promise.resolve();
   private nextId = 1;
@@ -36,38 +42,51 @@ export class Rcon {
     private host: string,
     private port: number,
     private password: string,
+    private timeoutMs = TIMEOUT_MS,
   ) {}
 
   /** Runs one command and returns the server's response text. */
   run(command: string): Promise<string> {
-    const result = this.queue.then(() => this.runNow(command));
+    return this.exclusive((run) => run(command));
+  }
+
+  /** Runs fn with no other command in between its own. */
+  exclusive<T>(fn: (run: Run) => Promise<T>): Promise<T> {
+    const result = this.queue.then(() => fn((command) => this.runNow(command)));
     this.queue = result.catch(() => {});
     return result;
   }
 
-  close() {
-    this.socket?.destroy();
+  close(reason = new Error("RCON connection closed")) {
+    const socket = this.socket;
     this.socket = undefined;
+    socket?.destroy();
+    const waiting = this.waiting;
+    this.waiting = [];
+    for (const w of waiting) w.reject(reason);
   }
 
   private async runNow(command: string): Promise<string> {
+    const request = encode(this.id(), COMMAND, command);
+    if (request.length > MAX_REQUEST) {
+      throw new Error(`command is ${request.length - 14} bytes; RCON allows ${MAX_REQUEST - 14}`);
+    }
     if (!this.socket) await this.open();
     try {
-      const id = this.id();
-      this.socket!.write(encode(id, COMMAND, command));
+      this.socket!.write(request);
       const parts = [(await this.receive()).body];
       this.socket!.write(encode(SENTINEL_ID, SENTINEL_TYPE, ""));
       for (;;) {
         const p = await this.receive();
         if (p.id === SENTINEL_ID) return parts.join("");
-        // A body of exactly MAX_BODY bytes was cut off and continues in this
-        // packet; anything shorter ended a message of its own
-        if (Buffer.byteLength(parts.at(-1)!) < MAX_BODY) parts.push("\n");
+        // A body of exactly MAX_BODY characters was cut off and continues in
+        // this packet; anything shorter ended a message of its own
+        if (parts.at(-1)!.length < MAX_BODY) parts.push("\n");
         parts.push(p.body);
       }
     } catch (e) {
       // Reconnect on the next command
-      this.close();
+      this.close(e as Error);
       throw e;
     }
   }
@@ -82,12 +101,17 @@ export class Rcon {
     this.received = [];
     const socket = connect(this.port, this.host);
     await new Promise<void>((resolve, reject) => {
-      socket.once("connect", resolve);
-      socket.once("error", reject);
+      const timer = setTimeout(() => {
+        socket.destroy();
+        reject(new Error(`no RCON server answered at ${this.host}:${this.port}`));
+      }, this.timeoutMs);
+      socket.once("connect", () => (clearTimeout(timer), resolve()));
+      socket.once("error", (e) => (clearTimeout(timer), reject(e)));
     });
-    socket.on("data", (chunk) => this.onData(chunk));
-    socket.on("close", () => this.fail(new Error("RCON connection closed")));
-    socket.on("error", (e) => this.fail(e));
+    // A late event from an earlier socket must not fail this one's commands
+    socket.on("data", (chunk) => this.socket === socket && this.onData(chunk));
+    socket.on("close", () => this.socket === socket && this.close());
+    socket.on("error", (e) => this.socket === socket && this.close(e));
     this.socket = socket;
     socket.write(encode(this.id(), LOGIN, this.password));
     const reply = await this.receive();
@@ -108,31 +132,23 @@ export class Rcon {
       };
       this.buffer = this.buffer.subarray(4 + length);
       const waiter = this.waiting.shift();
-      if (waiter) waiter(packet);
+      if (waiter) waiter.resolve(packet);
       else this.received.push(packet);
     }
-  }
-
-  private failures: ((e: Error) => void)[] = [];
-
-  private fail(e: Error) {
-    const rejects = this.failures;
-    this.failures = [];
-    this.waiting = [];
-    this.socket = undefined;
-    for (const reject of rejects) reject(e);
   }
 
   private receive(): Promise<Packet> {
     const ready = this.received.shift();
     if (ready) return Promise.resolve(ready);
     return new Promise((resolve, reject) => {
-      const done = (p: Packet) => {
-        this.failures = this.failures.filter((f) => f !== reject);
-        resolve(p);
-      };
-      this.waiting.push(done);
-      this.failures.push(reject);
+      const timer = setTimeout(
+        () => this.close(new Error(`RCON server didn't answer within ${this.timeoutMs} ms`)),
+        this.timeoutMs,
+      );
+      this.waiting.push({
+        resolve: (p) => (clearTimeout(timer), resolve(p)),
+        reject: (e) => (clearTimeout(timer), reject(e)),
+      });
     });
   }
 }

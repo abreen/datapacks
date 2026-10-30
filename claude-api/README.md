@@ -21,7 +21,7 @@ The bridge puts the arguments in `storage claude_api:in args` and runs
 
 | Function | Effect |
 | --- | --- |
-| `config/disable` | Blocks `setblock` and `fill` (they answer `error:"disabled"`); queries still work |
+| `config/disable` | Blocks `setblock` and `fill` (they answer `error:"disabled"`) and the bridge's `run_commands`; queries still work |
 | `config/enable` | Allows them again (the default) |
 | `config/show` | Shows whether Claude can change the world |
 

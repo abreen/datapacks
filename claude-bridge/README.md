@@ -8,7 +8,7 @@ plus the [claude-api](../claude-api) data pack's functions. Needs
 
 | Tool | What it does |
 | --- | --- |
-| `run_commands` | Runs console commands in order and returns each response |
+| `run_commands` | Runs console commands in order and returns each response; refused while `claude_api:config/disable` is on |
 | `call_api` | Calls a `claude_api:api/` function and returns its result |
 | `players` | Lists online players with position and dimension |
 | `say` | Sends a chat message as `<Claude>` |

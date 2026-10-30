@@ -1,2 +1,2 @@
-execute if score #enabled claude_api.config matches 1 run tellraw @s [{text:"[Claude API] ",color:"gold"},"Claude can change the world. Turn this off with ",{text:"/function claude_api:config/disable",color:"yellow"}]
-execute unless score #enabled claude_api.config matches 1 run tellraw @s [{text:"[Claude API] ",color:"gold"},"Claude can't change the world. Turn this on with ",{text:"/function claude_api:config/enable",color:"yellow"}]
+execute if score #enabled claude_api.config matches 1 run tellraw @s [{text:"[Claude API] ",color:"gold"},"Claude can change the world and run commands. Turn this off with ",{text:"/function claude_api:config/disable",color:"yellow"}]
+execute unless score #enabled claude_api.config matches 1 run tellraw @s [{text:"[Claude API] ",color:"gold"},"Claude can't change the world or run commands. Turn this on with ",{text:"/function claude_api:config/enable",color:"yellow"}]
