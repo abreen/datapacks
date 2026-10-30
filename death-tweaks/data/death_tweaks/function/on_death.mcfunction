@@ -16,8 +16,9 @@ function death_tweaks:at_death_location with storage death_tweaks:tmp death
 
 function death_tweaks:notify
 
-# Remove the temporary copies of destroyed stacks and untag real drops
+# Remove the temporary copies of destroyed and damaged items and untag real drops
 kill @e[type=item,tag=death_tweaks.lost,tag=!death_tweaks.dropped]
+kill @e[type=item,tag=death_tweaks.damaged]
 tag @e[type=item,tag=death_tweaks.dropped] remove death_tweaks.lost
 tag @e[type=item,tag=death_tweaks.dropped] remove death_tweaks.dropped
 tag @s remove death_tweaks.dying

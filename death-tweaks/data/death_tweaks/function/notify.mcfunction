@@ -8,6 +8,11 @@ execute if score #dropped death_tweaks.tmp matches 1 run tellraw @s {text:"You d
 execute if score #dropped death_tweaks.tmp matches 2.. run tellraw @s {text:"You dropped these items:",color:"gray",italic:true}
 execute as @e[type=item,tag=death_tweaks.dropped] run function death_tweaks:notify_line {color:"gray",suffix:""}
 
+execute store result score #damaged death_tweaks.tmp if entity @e[type=item,tag=death_tweaks.damaged]
+execute if score #damaged death_tweaks.tmp matches 1 run tellraw @s {text:"This item was damaged:",color:"gray",italic:true}
+execute if score #damaged death_tweaks.tmp matches 2.. run tellraw @s {text:"These items were damaged:",color:"gray",italic:true}
+execute as @e[type=item,tag=death_tweaks.damaged] run function death_tweaks:notify_line {color:"gray",suffix:""}
+
 execute if score #destroyed death_tweaks.tmp matches 1 run tellraw @s {text:"This item was destroyed:",color:"red",italic:true}
 execute if score #destroyed death_tweaks.tmp matches 2.. run tellraw @s {text:"These items were destroyed:",color:"red",italic:true}
 execute as @e[type=item,tag=death_tweaks.destroyed] run function death_tweaks:notify_line {color:"red",suffix:""}

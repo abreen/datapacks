@@ -9,5 +9,6 @@ data remove storage death_tweaks:tmp xp
 data remove storage death_tweaks:tmp split
 data remove storage death_tweaks:tmp take
 data remove storage death_tweaks:tmp box
+data remove storage death_tweaks:tmp wear
 gamerule keep_inventory false
 tellraw @s [{text:"[Death Tweaks] ",color:"gold"},"Uninstalled. Now disable the data pack and run /reload."]

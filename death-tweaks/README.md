@@ -13,10 +13,17 @@ drops anything. A `deathCount` scoreboard detects deaths, and for each of the
 41 player slots (hotbar, inventory, armor, offhand) the pack rolls
 `random value 1..100` against the chance configured for the world's current
 difficulty. For a hit stack of N items, a second roll of `random value 1..N`
-decides how many are lost; the rest stay in the slot. A single item (tools,
-armor, anything unstackable) is lost whole. Lost items are dropped at the
+decides how many are lost; the rest stay in the slot. Any other single item
+(anything unstackable) is lost whole. Lost items are dropped at the
 player's death location (from `LastDeathLocation`, so it works even with
 `immediate_respawn`), or destroyed if configured.
+
+A hit item with durability (tools, weapons, armor, elytra, shields, …) isn't
+lost: it loses a random amount of durability instead, from one point up to a
+configured share of its maximum (by default 10% on Peaceful, 20% on Easy, 30%
+on Normal and 50% on Hard). If that uses up all its remaining durability, it
+breaks and is lost whole like any other stack. Unbreakable items are kept as
+they are.
 
 The player also loses a configurable percentage (30% by default) of their
 experience. It's taken from their total experience *points*, not levels, so
@@ -27,7 +34,8 @@ the same setting as lost stacks.
 
 After dying, the player gets a private message (only they can see it)
 listing what they dropped, e.g. `7× Gold Ingot` (the number lost, not the
-stack size), under "You dropped these items:". Items that were deleted instead
+stack size), under "You dropped these items:". Items that lost durability are listed
+under "These items were damaged:". Items that were deleted instead
 are listed in red under "These items were destroyed:", with `(vanished)`
 after Curse of Vanishing items. Then comes how much experience they dropped
 ("You dropped 5 levels of experience.") or, in red, how much was destroyed
@@ -54,6 +62,7 @@ Run these as an operator:
 | --- | --- |
 | `/function death_tweaks:config/show` | Show current settings |
 | `/function death_tweaks:config/set_chance {difficulty:"normal",percent:30}` | Chance (0–100) that each stack is hit on that difficulty (`peaceful`, `easy`, `normal` or `hard`) |
+| `/function death_tweaks:config/set_durability_loss {difficulty:"normal",percent:30}` | Most durability (1–100% of the maximum) a hit damageable item can lose on that difficulty |
 | `/function death_tweaks:config/set_xp_loss {percent:30}` | Percentage (0–100) of total experience points lost |
 | `/function death_tweaks:config/drop_lost_items` | Drop lost stacks and experience at the death location (default) |
 | `/function death_tweaks:config/destroy_lost_items` | Delete lost stacks and experience instead (shulker boxes still drop their contents) |

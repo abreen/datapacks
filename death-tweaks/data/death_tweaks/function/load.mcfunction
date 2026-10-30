@@ -15,6 +15,10 @@ execute unless score #chance_peaceful death_tweaks.config matches 0.. run scoreb
 execute unless score #chance_easy death_tweaks.config matches 0.. run scoreboard players set #chance_easy death_tweaks.config 20
 execute unless score #chance_normal death_tweaks.config matches 0.. run scoreboard players set #chance_normal death_tweaks.config 30
 execute unless score #chance_hard death_tweaks.config matches 0.. run scoreboard players set #chance_hard death_tweaks.config 50
+execute unless score #durability_loss_peaceful death_tweaks.config matches 0.. run scoreboard players set #durability_loss_peaceful death_tweaks.config 10
+execute unless score #durability_loss_easy death_tweaks.config matches 0.. run scoreboard players set #durability_loss_easy death_tweaks.config 20
+execute unless score #durability_loss_normal death_tweaks.config matches 0.. run scoreboard players set #durability_loss_normal death_tweaks.config 30
+execute unless score #durability_loss_hard death_tweaks.config matches 0.. run scoreboard players set #durability_loss_hard death_tweaks.config 50
 execute unless score #destroy death_tweaks.config matches 0.. run scoreboard players set #destroy death_tweaks.config 0
 execute unless score #vanishing_curse death_tweaks.config matches 0.. run scoreboard players set #vanishing_curse death_tweaks.config 1
 execute unless score #xp_loss death_tweaks.config matches 0.. run scoreboard players set #xp_loss death_tweaks.config 30
