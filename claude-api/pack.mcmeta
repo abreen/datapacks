@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "A small command API that lets Claude query and build in the world over RCON",
+    "min_format": 121,
+    "max_format": 121
+  }
+}

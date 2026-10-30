@@ -6,6 +6,7 @@ Minecraft: Java Edition data packs.
 | --- | --- | --- |
 | [bed-tweaks](bed-tweaks) | Respawn at any bed you've placed, not just the last one | 26.3 |
 | [boltcatcher](boltcatcher) | Catch lightning in a hopper and fight to keep its speed and low-gravity powers charged | 26.3 |
+| [claude-api](claude-api) | A command API that lets Claude query and build in the world over RCON, with [claude-bridge](claude-bridge) | 26.3 |
 | [death-tweaks](death-tweaks) | Keep inventory, but lose some items and experience on death | 26.3 |
 
 ## Installing
