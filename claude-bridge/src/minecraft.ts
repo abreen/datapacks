@@ -98,10 +98,19 @@ function afterColon(s: string) {
   return i === -1 ? s : s.slice(i + 2);
 }
 
-/** Non-player entities in a box, from the claude-api pack (loaded chunks only). */
-export function entities(rcon: Rcon, box: Box) {
-  const b = normalize(box);
-  return callApi(rcon, "entities", {
-    x: b.x1, y: b.y1, z: b.z1, dx: b.x2 - b.x1, dy: b.y2 - b.y1, dz: b.z2 - b.z1,
-  });
+// "Cow has the following entity data: [1.5d, 64.0d, -2.5d]", repeated with
+// no separator, since RCON joins a command's messages
+const ENTITY_POS = /(.+?) has the following entity data: (\[[^\]]*\])/g;
+
+/**
+ * Non-player entities in a box with the name a player would see (custom
+ * name if it has one) and position. /data can't read an entity's id, so the
+ * name is the type. Only entities in loaded chunks are found.
+ */
+export async function entities(rcon: Rcon, box: Box) {
+  const { x1, y1, z1, x2, y2, z2 } = normalize(box);
+  const got = await rcon.run(
+    `execute as @e[type=!minecraft:player,x=${x1},y=${y1},z=${z1},dx=${x2 - x1},dy=${y2 - y1},dz=${z2 - z1}] run data get entity @s Pos`,
+  );
+  return [...got.matchAll(ENTITY_POS)].map(([, name, pos]) => ({ name, pos }));
 }

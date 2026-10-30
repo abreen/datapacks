@@ -17,7 +17,9 @@ const { server, port, log } = await fakeServer((command) => {
     stored = true;
     return "Running function claude_api:api/pingFunction claude_api:api/ping returned 1";
   }
-  if (command.startsWith("function claude_api:api/entities")) return "Running function claude_api:api/entities";
+  if (command.startsWith("execute as @e[")) {
+    return "Cow has the following entity data: [1.5d, 64.0d, -2.5d]Glow Squid has the following entity data: [3.0d, 40.0d, 7.25d]";
+  }
   if (command === "data get storage claude_api:out result") {
     return stored ? "Storage claude_api:out has the following contents: {ok: 1b}" : "Found no elements matching result";
   }
@@ -69,7 +71,12 @@ test("runCommands is refused while the pack is disabled or missing", async () =>
   enabled = 1;
 });
 
-test("entities passes the box as a corner and size", async () => {
-  await entities(rcon, { x1: 8, y1: 70, z1: 8, x2: -8, y2: 60, z2: -8 });
-  expect(log).toContain("data modify storage claude_api:in args set value {x:-8,y:60,z:-8,dx:16,dy:10,dz:16}");
+test("entities splits the joined messages", async () => {
+  expect(await entities(rcon, { x1: 8, y1: 70, z1: 8, x2: -8, y2: 60, z2: -8 })).toEqual([
+    { name: "Cow", pos: "[1.5d, 64.0d, -2.5d]" },
+    { name: "Glow Squid", pos: "[3.0d, 40.0d, 7.25d]" },
+  ]);
+  expect(log.at(-1)).toBe(
+    "execute as @e[type=!minecraft:player,x=-8,y=60,z=-8,dx=16,dy=10,dz=16] run data get entity @s Pos",
+  );
 });

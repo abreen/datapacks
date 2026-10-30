@@ -39,7 +39,7 @@ server.registerTool(
   "call_api",
   {
     description:
-      "Call a claude_api data pack function, e.g. name \"fill\" with args {x1,y1,z1,x2,y2,z2,block}. Returns its result from storage claude_api:out (null if the call failed). Arguments are whole numbers or strings without spaces. Functions: ping, test_block {x,y,z,block}, setblock {x,y,z,block}, fill {x1,y1,z1,x2,y2,z2,block}, entities {x,y,z,dx,dy,dz}.",
+      "Call a claude_api data pack function, e.g. name \"fill\" with args {x1,y1,z1,x2,y2,z2,block}. Returns its result from storage claude_api:out (null if the call failed). Arguments are whole numbers or strings without spaces. Functions: ping, test_block {x,y,z,block}, setblock {x,y,z,block}, fill {x1,y1,z1,x2,y2,z2,block}.",
     inputSchema: {
       name: z.string(),
       args: z.record(z.string(), z.unknown()).optional(),

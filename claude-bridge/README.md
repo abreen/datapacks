@@ -13,7 +13,7 @@ plus the [claude-api](../claude-api) data pack's functions. Needs
 | `players` | Lists online players with position and dimension |
 | `say` | Sends a chat message as `<Claude>` |
 | `scan` | Reads a box of blocks (up to 64×64×64) from the saved chunk files: block counts and a top-down map. Runs `save-all flush` first |
-| `entities` | Lists non-player entities in a box with their positions (loaded chunks only), through the pack's `api/entities` |
+| `entities` | Lists non-player entities in a box by name (custom name if set) and position, loaded chunks only |
 
 ## Setup
 
