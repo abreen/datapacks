@@ -16,8 +16,11 @@ const fake = createServer((socket: Socket) => {
       buffer = buffer.subarray(4 + length);
       if (type === 3) socket.write(encode(body === "secret" ? id : -1, 2, ""));
       else if (type === 2 && body === "long") {
-        socket.write(encode(id, 0, "first half, "));
-        socket.write(encode(id, 0, "second half"));
+        socket.write(encode(id, 0, "x".repeat(4096)));
+        socket.write(encode(id, 0, "y"));
+      } else if (type === 2 && body === "two") {
+        socket.write(encode(id, 0, "Running function f"));
+        socket.write(encode(id, 0, "Function f returned 1"));
       } else if (type === 2) socket.write(encode(id, 0, `ran ${body}`));
       else socket.write(encode(id, 0, "Unknown request"));
     }
@@ -36,7 +39,13 @@ test("runs commands in order", async () => {
 
 test("joins a reply split over packets", async () => {
   const rcon = new Rcon("127.0.0.1", port, "secret");
-  expect(await rcon.run("long")).toBe("first half, second half");
+  expect(await rcon.run("long")).toBe("x".repeat(4096) + "y");
+  rcon.close();
+});
+
+test("puts separate messages on their own lines", async () => {
+  const rcon = new Rcon("127.0.0.1", port, "secret");
+  expect(await rcon.run("two")).toBe("Running function f\nFunction f returned 1");
   rcon.close();
 });
 

@@ -9,6 +9,8 @@ const COMMAND = 2;
 // where a multi-packet response ends
 const SENTINEL_TYPE = 0;
 const SENTINEL_ID = 0x7fff;
+// The server splits a response body into packets of this many bytes
+const MAX_BODY = 4096;
 
 type Packet = { id: number; body: string };
 
@@ -58,6 +60,9 @@ export class Rcon {
       for (;;) {
         const p = await this.receive();
         if (p.id === SENTINEL_ID) return parts.join("");
+        // A body of exactly MAX_BODY bytes was cut off and continues in this
+        // packet; anything shorter ended a message of its own
+        if (Buffer.byteLength(parts.at(-1)!) < MAX_BODY) parts.push("\n");
         parts.push(p.body);
       }
     } catch (e) {
