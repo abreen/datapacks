@@ -1,10 +1,12 @@
 // MCP server that gives Claude Code a Minecraft server's console over RCON.
-// Settings: RCON_HOST (default 127.0.0.1), RCON_PORT (25575), RCON_PASSWORD.
+// Settings: RCON_HOST (default 127.0.0.1), RCON_PORT (25575), RCON_PASSWORD,
+// and MC_WORLD (the world folder, for scan).
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { Rcon } from "./rcon";
-import { callApi, players, runCommands, say } from "./minecraft";
+import { callApi, entities, players, runCommands, say } from "./minecraft";
+import { World, scan } from "./region";
 
 const password = process.env.RCON_PASSWORD;
 if (!password) {
@@ -59,6 +61,35 @@ server.registerTool(
     inputSchema: { text: z.string() },
   },
   async ({ text: message }) => text(await say(rcon, message)),
+);
+
+const box = {
+  x1: z.number().int(), y1: z.number().int(), z1: z.number().int(),
+  x2: z.number().int(), y2: z.number().int(), z2: z.number().int(),
+};
+
+server.registerTool(
+  "scan",
+  {
+    description:
+      "Read the blocks in a box (at most 64x64x64) from the world's saved chunk files. Runs save-all flush first so the files are current. Returns block counts and a top-down map of each column's highest non-air block (rows north to south from z1, columns west to east from x1). Changes nothing in the world.",
+    inputSchema: { ...box, dimension: z.string().optional() },
+  },
+  async ({ dimension, ...corners }) => {
+    const dir = process.env.MC_WORLD;
+    if (!dir) throw new Error("set MC_WORLD to the world folder to use scan");
+    await rcon.run("save-all flush");
+    return text(scan(new World(dir, dimension), corners));
+  },
+);
+
+server.registerTool(
+  "entities",
+  {
+    description: "List non-player entities in a box with their positions. Only finds entities in loaded chunks. Changes nothing.",
+    inputSchema: box,
+  },
+  async (corners) => text(await entities(rcon, corners)),
 );
 
 await server.connect(new StdioServerTransport());

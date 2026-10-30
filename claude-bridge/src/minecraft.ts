@@ -89,3 +89,17 @@ function afterColon(s: string) {
   const i = s.indexOf(": ");
   return i === -1 ? s : s.slice(i + 2);
 }
+
+/** Non-player entities in a box: their name and position, one line each. */
+export function entities(rcon: Rcon, box: { x1: number; y1: number; z1: number; x2: number; y2: number; z2: number }) {
+  for (const v of Object.values(box)) {
+    if (!Number.isInteger(v)) throw new Error("box corners must be whole numbers");
+  }
+  const x = Math.min(box.x1, box.x2), y = Math.min(box.y1, box.y2), z = Math.min(box.z1, box.z2);
+  const dx = Math.abs(box.x2 - box.x1), dy = Math.abs(box.y2 - box.y1), dz = Math.abs(box.z2 - box.z1);
+  // Each entity answers with "<name> has the following entity data: [x, y, z]".
+  // Only entities in loaded chunks are found.
+  return rcon.run(
+    `execute as @e[type=!minecraft:player,x=${x},y=${y},z=${z},dx=${dx},dy=${dy},dz=${dz}] run data get entity @s Pos`,
+  );
+}

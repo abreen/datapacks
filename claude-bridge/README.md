@@ -12,6 +12,8 @@ plus the [claude-api](../claude-api) data pack's functions. Needs
 | `call_api` | Calls a `claude_api:api/` function and returns its result |
 | `players` | Lists online players with position and dimension |
 | `say` | Sends a chat message as `<Claude>` |
+| `scan` | Reads a box of blocks (up to 64×64×64) from the saved chunk files: block counts and a top-down map. Runs `save-all flush` first |
+| `entities` | Lists non-player entities in a box with their positions (loaded chunks only) |
 
 ## Setup
 
@@ -32,8 +34,10 @@ plus the [claude-api](../claude-api) data pack's functions. Needs
    ```
 
    `RCON_HOST` (default `127.0.0.1`) and `RCON_PORT` (default `25575`) can be
-   set the same way.
+   set the same way. `scan` needs `MC_WORLD`, the world folder (it reads the
+   region files directly, so the bridge must run on the server's machine).
 
 ## Testing
 
-`bun test` runs the RCON client against a fake server.
+`bun test` runs the RCON client against a fake server and the region reader
+against a generated chunk.
