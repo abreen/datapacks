@@ -1,4 +1,5 @@
 import type { Rcon, Run } from "./rcon";
+import { normalize, type Box } from "./region";
 import { toSnbt } from "./snbt";
 
 const API_NAME = /^[a-z0-9_]+(\/[a-z0-9_]+)*$/;
@@ -19,7 +20,9 @@ export function callApi(rcon: Rcon, name: string, args: Record<string, unknown> 
     // Cleared first, so a call that fails can't return the last call's result
     await run("data remove storage claude_api:out result");
     await run(`data modify storage claude_api:in args set value ${toSnbt(args)}`);
-    const ran = await run(`function claude_api:api/${name} with storage claude_api:in args`);
+    // RCON joins a command's messages with no separator; split them again
+    const ran = (await run(`function claude_api:api/${name} with storage claude_api:in args`))
+      .replace(/(?<=.)(?=Function claude_api:)/g, "\n");
     const got = await run("data get storage claude_api:out result");
     const result = got.includes("has the following contents: ") ? afterColon(got) : null;
     return { ran, result };
@@ -34,10 +37,13 @@ function checkArg(key: string, value: unknown) {
   throw new Error(`argument ${key} must be a whole number or a string without spaces`);
 }
 
-/** Whether claude_api:config/disable is off. True if the pack isn't loaded. */
+/**
+ * Whether claude_api:config/enable is on. False when the score can't be read
+ * (pack not loaded, or uninstalled), so the switch fails closed.
+ */
 export async function writesAllowed(run: Run) {
   const got = await run("scoreboard players get #enabled claude_api.config");
-  return got.match(/has (-?\d+)/)?.[1] !== "0";
+  return got.match(/has (-?\d+)/)?.[1] === "1";
 }
 
 /**
@@ -47,7 +53,9 @@ export async function writesAllowed(run: Run) {
 export function runCommands(rcon: Rcon, commands: string[]) {
   return rcon.exclusive(async (run) => {
     if (!(await writesAllowed(run))) {
-      throw new Error("Claude's commands are turned off in game (claude_api:config/disable)");
+      throw new Error(
+        "Claude's commands are turned off: claude_api:config/disable is on, or the claude-api pack isn't loaded",
+      );
     }
     const out: { command: string; response?: string; error?: string }[] = [];
     for (const command of commands) {
@@ -90,16 +98,10 @@ function afterColon(s: string) {
   return i === -1 ? s : s.slice(i + 2);
 }
 
-/** Non-player entities in a box: their name and position, one line each. */
-export function entities(rcon: Rcon, box: { x1: number; y1: number; z1: number; x2: number; y2: number; z2: number }) {
-  for (const v of Object.values(box)) {
-    if (!Number.isInteger(v)) throw new Error("box corners must be whole numbers");
-  }
-  const x = Math.min(box.x1, box.x2), y = Math.min(box.y1, box.y2), z = Math.min(box.z1, box.z2);
-  const dx = Math.abs(box.x2 - box.x1), dy = Math.abs(box.y2 - box.y1), dz = Math.abs(box.z2 - box.z1);
-  // Each entity answers with "<name> has the following entity data: [x, y, z]".
-  // Only entities in loaded chunks are found.
-  return rcon.run(
-    `execute as @e[type=!minecraft:player,x=${x},y=${y},z=${z},dx=${dx},dy=${dy},dz=${dz}] run data get entity @s Pos`,
-  );
+/** Non-player entities in a box, from the claude-api pack (loaded chunks only). */
+export function entities(rcon: Rcon, box: Box) {
+  const b = normalize(box);
+  return callApi(rcon, "entities", {
+    x: b.x1, y: b.y1, z: b.z1, dx: b.x2 - b.x1, dy: b.y2 - b.y1, dz: b.z2 - b.z1,
+  });
 }

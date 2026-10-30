@@ -18,7 +18,7 @@ const TIMEOUT_MS = 10_000;
 
 type Packet = { id: number; body: string };
 type Waiter = { resolve: (p: Packet) => void; reject: (e: Error) => void };
-export type Run = (command: string) => Promise<string>;
+export type Run = (command: string, timeoutMs?: number) => Promise<string>;
 
 export function encode(id: number, type: number, body: string): Buffer {
   const payload = Buffer.from(body, "utf8");
@@ -46,13 +46,13 @@ export class Rcon {
   ) {}
 
   /** Runs one command and returns the server's response text. */
-  run(command: string): Promise<string> {
-    return this.exclusive((run) => run(command));
+  run(command: string, timeoutMs?: number): Promise<string> {
+    return this.exclusive((run) => run(command, timeoutMs));
   }
 
   /** Runs fn with no other command in between its own. */
   exclusive<T>(fn: (run: Run) => Promise<T>): Promise<T> {
-    const result = this.queue.then(() => fn((command) => this.runNow(command)));
+    const result = this.queue.then(() => fn((command, timeoutMs) => this.runNow(command, timeoutMs)));
     this.queue = result.catch(() => {});
     return result;
   }
@@ -66,7 +66,7 @@ export class Rcon {
     for (const w of waiting) w.reject(reason);
   }
 
-  private async runNow(command: string): Promise<string> {
+  private async runNow(command: string, timeoutMs = this.timeoutMs): Promise<string> {
     const request = encode(this.id(), COMMAND, command);
     if (request.length > MAX_REQUEST) {
       throw new Error(`command is ${request.length - 14} bytes; RCON allows ${MAX_REQUEST - 14}`);
@@ -74,7 +74,7 @@ export class Rcon {
     if (!this.socket) await this.open();
     try {
       this.socket!.write(request);
-      const parts = [(await this.receive()).body];
+      const parts = [(await this.receive(timeoutMs)).body];
       this.socket!.write(encode(SENTINEL_ID, SENTINEL_TYPE, ""));
       for (;;) {
         const p = await this.receive();
@@ -137,13 +137,13 @@ export class Rcon {
     }
   }
 
-  private receive(): Promise<Packet> {
+  private receive(timeoutMs = this.timeoutMs): Promise<Packet> {
     const ready = this.received.shift();
     if (ready) return Promise.resolve(ready);
     return new Promise((resolve, reject) => {
       const timer = setTimeout(
-        () => this.close(new Error(`RCON server didn't answer within ${this.timeoutMs} ms`)),
-        this.timeoutMs,
+        () => this.close(new Error(`RCON server didn't answer within ${timeoutMs} ms`)),
+        timeoutMs,
       );
       this.waiting.push({
         resolve: (p) => (clearTimeout(timer), resolve(p)),

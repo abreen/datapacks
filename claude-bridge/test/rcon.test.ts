@@ -49,6 +49,14 @@ test("times out when the server doesn't answer, then recovers", async () => {
   rcon.close();
 });
 
+test("a single command can wait longer than the default timeout", async () => {
+  const rcon = new Rcon("127.0.0.1", port, "secret", 10_000);
+  const start = Date.now();
+  await expect(rcon.run("hang", 100)).rejects.toThrow("within 100 ms");
+  expect(Date.now() - start).toBeLessThan(2000);
+  rcon.close();
+});
+
 test("exclusive keeps other commands out", async () => {
   const rcon = new Rcon("127.0.0.1", port, "secret");
   const order: string[] = [];

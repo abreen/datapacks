@@ -39,7 +39,7 @@ server.registerTool(
   "call_api",
   {
     description:
-      "Call a claude_api data pack function, e.g. name \"fill\" with args {x1,y1,z1,x2,y2,z2,block}. Returns its result from storage claude_api:out (null if the call failed). Arguments are whole numbers or strings without spaces. Functions: ping, test_block {x,y,z,block}, setblock {x,y,z,block}, fill {x1,y1,z1,x2,y2,z2,block}.",
+      "Call a claude_api data pack function, e.g. name \"fill\" with args {x1,y1,z1,x2,y2,z2,block}. Returns its result from storage claude_api:out (null if the call failed). Arguments are whole numbers or strings without spaces. Functions: ping, test_block {x,y,z,block}, setblock {x,y,z,block}, fill {x1,y1,z1,x2,y2,z2,block}, entities {x,y,z,dx,dy,dz}.",
     inputSchema: {
       name: z.string(),
       args: z.record(z.string(), z.unknown()).optional(),
@@ -78,7 +78,8 @@ server.registerTool(
   async ({ dimension, ...corners }) => {
     const dir = process.env.MC_WORLD;
     if (!dir) throw new Error("set MC_WORLD to the world folder to use scan");
-    await rcon.run("save-all flush");
+    // A flush writes every loaded chunk, which can take a while
+    await rcon.run("save-all flush", 120_000);
     return text(scan(new World(dir, dimension), corners));
   },
 );

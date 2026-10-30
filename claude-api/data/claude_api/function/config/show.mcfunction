@@ -1,2 +1,6 @@
 execute if score #enabled claude_api.config matches 1 run tellraw @s [{text:"[Claude API] ",color:"gold"},"Claude can change the world and run commands. Turn this off with ",{text:"/function claude_api:config/disable",color:"yellow"}]
 execute unless score #enabled claude_api.config matches 1 run tellraw @s [{text:"[Claude API] ",color:"gold"},"Claude can't change the world or run commands. Turn this on with ",{text:"/function claude_api:config/enable",color:"yellow"}]
+# tellraw @s shows nothing from the console or RCON, so also return the
+# state there: "returned 1" means enabled
+execute if score #enabled claude_api.config matches 1 run return 1
+return 0

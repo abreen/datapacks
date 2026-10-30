@@ -1,20 +1,23 @@
 import { afterAll, expect, test } from "bun:test";
 import { Rcon } from "../src/rcon";
-import { callApi, players, runCommands } from "../src/minecraft";
+import { callApi, entities, players, runCommands } from "../src/minecraft";
 import { fakeServer } from "./fake";
 
-let enabled = 1;
+let enabled: number | null = 1;
 let stored = false;
 const { server, port, log } = await fakeServer((command) => {
-  if (command.startsWith("scoreboard players get")) return `#enabled has ${enabled} [claude_api.config]`;
+  if (command.startsWith("scoreboard players get")) {
+    return enabled === null ? "Can't get value of #enabled for claude_api.config; none is set" : `#enabled has ${enabled} [claude_api.config]`;
+  }
   if (command === "data remove storage claude_api:out result") {
     stored = false;
     return "Modified storage claude_api:out";
   }
   if (command === "function claude_api:api/ping with storage claude_api:in args") {
     stored = true;
-    return "Running function claude_api:api/ping";
+    return "Running function claude_api:api/pingFunction claude_api:api/ping returned 1";
   }
+  if (command.startsWith("function claude_api:api/entities")) return "Running function claude_api:api/entities";
   if (command === "data get storage claude_api:out result") {
     return stored ? "Storage claude_api:out has the following contents: {ok: 1b}" : "Found no elements matching result";
   }
@@ -29,7 +32,9 @@ const rcon = new Rcon("127.0.0.1", port, "secret");
 afterAll(() => (rcon.close(), server.close()));
 
 test("callApi clears the last result first", async () => {
-  expect((await callApi(rcon, "ping")).result).toBe("{ok: 1b}");
+  const ping = await callApi(rcon, "ping");
+  expect(ping.result).toBe("{ok: 1b}");
+  expect(ping.ran).toBe("Running function claude_api:api/ping\nFunction claude_api:api/ping returned 1");
   // A function that doesn't exist writes nothing, so its result is null
   expect((await callApi(rcon, "missing")).result).toBeNull();
 });
@@ -54,10 +59,17 @@ test("runCommands keeps earlier responses when one fails", async () => {
   expect(out).toHaveLength(2);
 });
 
-test("runCommands is refused while the pack is disabled", async () => {
-  enabled = 0;
-  const before = log.length;
-  await expect(runCommands(rcon, ["a"])).rejects.toThrow("turned off");
-  expect(log.slice(before)).not.toContain("a");
+test("runCommands is refused while the pack is disabled or missing", async () => {
+  for (const state of [0, null]) {
+    enabled = state;
+    const before = log.length;
+    await expect(runCommands(rcon, ["a"])).rejects.toThrow("turned off");
+    expect(log.slice(before)).not.toContain("a");
+  }
   enabled = 1;
+});
+
+test("entities passes the box as a corner and size", async () => {
+  await entities(rcon, { x1: 8, y1: 70, z1: 8, x2: -8, y2: 60, z2: -8 });
+  expect(log).toContain("data modify storage claude_api:in args set value {x:-8,y:60,z:-8,dx:16,dy:10,dz:16}");
 });

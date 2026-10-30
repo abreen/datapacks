@@ -21,7 +21,7 @@ function payload([kind, v]: W): Buffer {
 
 // Chunk 0,0: section Y=4 (y 64-79) has stone at the bottom layer (y=64)
 // except grass_block at x=1,z=0, and a sheep-less sky above
-function chunk(legacy: boolean): Buffer {
+function chunk(legacy: boolean, status = "minecraft:full"): Buffer {
   const longs: bigint[] = new Array(256).fill(0n); // 4 bits, 16 per long
   for (let i = 0; i < 256; i++) {
     // index i in layer y=64: palette 1 (stone), except x=1,z=0 -> 2 (grass)
@@ -45,22 +45,35 @@ function chunk(legacy: boolean): Buffer {
   ];
   // A single-entry section saved as a list of strings (26.x) or {Name} (older)
   if (!legacy) sections.push(["compound", { Y: ["byte", 3], block_states: ["compound", { palette: ["list", [["string", "minecraft:dirt"]]] }] }]);
-  const root: W = ["compound", { sections: ["list", sections] }];
+  const root: W = ["compound", { DataVersion: ["int", 4000], Status: ["string", status], sections: ["list", sections] }];
   return Buffer.concat([Buffer.from([10]), payload(["string", ""]), payload(root)]);
 }
 
+// Region r.0.0 with chunk 0,0 stored inside, chunk 1,0 stored outside in a
+// .mcc file, and chunk 2,0 still being generated
 function writeWorld(legacy: boolean) {
   const dir = mkdtempSync(join(tmpdir(), "world-"));
   const regionDir = legacy ? join(dir, "region") : join(dir, "dimensions", "minecraft", "overworld", "region");
   mkdirSync(regionDir, { recursive: true });
-  const body = deflateSync(chunk(legacy));
   const header = Buffer.alloc(8192);
-  header.writeUIntBE(2, 0, 3); // chunk 0,0 at sector 2
-  header[3] = Math.ceil((body.length + 5) / 4096);
-  const head = Buffer.alloc(5);
-  head.writeInt32BE(body.length + 1);
-  head[4] = 2; // zlib
-  writeFileSync(join(regionDir, "r.0.0.mca"), Buffer.concat([header, head, body, Buffer.alloc(4096)]));
+  const sectors: Buffer[] = [];
+  const store = (cx: number, data: Buffer, external: boolean) => {
+    const body = deflateSync(data);
+    const head = Buffer.alloc(5);
+    head.writeInt32BE(external ? 1 : body.length + 1);
+    head[4] = external ? 2 | 128 : 2;
+    if (external) writeFileSync(join(regionDir, `c.${cx}.0.mcc`), body);
+    const sector = Buffer.concat([head, external ? Buffer.alloc(0) : body]);
+    const padded = Buffer.alloc(Math.ceil(sector.length / 4096) * 4096);
+    sector.copy(padded);
+    header.writeUIntBE(2 + sectors.reduce((n, b) => n + b.length / 4096, 0), 4 * cx, 3);
+    header[4 * cx + 3] = padded.length / 4096;
+    sectors.push(padded);
+  };
+  store(0, chunk(legacy), false);
+  store(1, chunk(legacy), true);
+  store(2, chunk(legacy, "minecraft:features"), false);
+  writeFileSync(join(regionDir, "r.0.0.mca"), Buffer.concat([header, ...sectors]));
   return dir;
 }
 const dir = writeWorld(false);
@@ -75,6 +88,18 @@ test("reads blocks from a region file", () => {
   expect(world.block(5, 63, 5)).toBe("minecraft:dirt"); // single-entry section
   expect(world.block(5, 10, 5)).toBe("minecraft:air"); // no section saved there
   expect(world.block(100, 64, 0)).toBeNull(); // chunk never saved
+});
+
+test("reads chunks stored outside the region file", () => {
+  expect(new World(dir).block(16, 64, 0)).toBe("minecraft:stone");
+});
+
+test("treats chunks still being generated as unreadable", () => {
+  expect(new World(dir).block(32, 64, 0)).toBeNull();
+});
+
+test("refuses a world folder with no region files", () => {
+  expect(() => new World(join(dir, "nope"))).toThrow("no region files");
 });
 
 test("scan counts blocks and maps the top layer", () => {
@@ -92,4 +117,14 @@ test("reads worlds saved before 26.x", () => {
 
 test("scan refuses huge boxes", () => {
   expect(() => scan(new World(dir), { x1: 0, y1: 0, z1: 0, x2: 100, y2: 100, z2: 100 })).toThrow("limit");
+});
+
+test("past the last letter, top blocks share ? and all stay in the key", () => {
+  const world = new World(dir);
+  // A fake world whose every column tops out in a different block
+  (world as unknown as { block: (x: number, y: number, z: number) => string }).block = (x, y, z) =>
+    y === 0 ? `minecraft:b${x + z * 10}` : "minecraft:air";
+  const out = scan(world, { x1: 0, y1: 0, z1: 0, x2: 9, y2: 1, z2: 6 });
+  expect(Object.keys(out.top_view.key)).toHaveLength(63);
+  expect(out.top_view.key["?"]).toHaveLength(70 - 62);
 });

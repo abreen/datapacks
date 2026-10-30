@@ -13,6 +13,7 @@ reads back with `/data get`.
 | `api/test_block` | `x`, `y`, `z`, `block` (an id with states, or a tag) | `{ok, loaded, match}` |
 | `api/setblock` | `x`, `y`, `z`, `block` | `{ok}` |
 | `api/fill` | `x1`, `y1`, `z1`, `x2`, `y2`, `z2`, `block` | `{ok, count}` |
+| `api/entities` | `x`, `y`, `z`, `dx`, `dy`, `dz` (a box, as in target selectors) | `{ok, entities:[{id, pos, uuid}]}`, non-player entities in loaded chunks |
 
 The bridge puts the arguments in `storage claude_api:in args` and runs
 `function claude_api:api/<name> with storage claude_api:in args`.
@@ -23,7 +24,7 @@ The bridge puts the arguments in `storage claude_api:in args` and runs
 | --- | --- |
 | `config/disable` | Blocks `setblock` and `fill` (they answer `error:"disabled"`) and the bridge's `run_commands`; queries still work |
 | `config/enable` | Allows them again (the default) |
-| `config/show` | Shows whether Claude can change the world |
+| `config/show` | Shows whether Claude can change the world; from the console or RCON, it returns 1 if so and 0 if not |
 
 ## Uninstalling
 
