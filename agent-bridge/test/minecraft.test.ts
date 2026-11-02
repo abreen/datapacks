@@ -1,27 +1,27 @@
 import { afterAll, expect, test } from "bun:test";
 import { Rcon } from "../src/rcon";
-import { callApi, entities, players, runCommands } from "../src/minecraft";
+import { callApi, entities, players, runCommands, say } from "../src/minecraft";
 import { fakeServer } from "./fake";
 
 let enabled: number | null = 1;
 let stored = false;
 const { server, port, log } = await fakeServer((command) => {
   if (command.startsWith("scoreboard players get")) {
-    return enabled === null ? "Can't get value of #enabled for claude_api.config; none is set" : `#enabled has ${enabled} [claude_api.config]`;
+    return enabled === null ? "Can't get value of #enabled for agent_api.config; none is set" : `#enabled has ${enabled} [agent_api.config]`;
   }
-  if (command === "data remove storage claude_api:out result") {
+  if (command === "data remove storage agent_api:out result") {
     stored = false;
-    return "Modified storage claude_api:out";
+    return "Modified storage agent_api:out";
   }
-  if (command === "function claude_api:api/ping with storage claude_api:in args") {
+  if (command === "function agent_api:api/ping with storage agent_api:in args") {
     stored = true;
-    return "Running function claude_api:api/pingFunction claude_api:api/ping returned 1";
+    return "Running function agent_api:api/pingFunction agent_api:api/ping returned 1";
   }
   if (command.startsWith("execute as @e[")) {
     return "Cow has the following entity data: [1.5d, 64.0d, -2.5d]Glow Squid has the following entity data: [3.0d, 40.0d, 7.25d]";
   }
-  if (command === "data get storage claude_api:out result") {
-    return stored ? "Storage claude_api:out has the following contents: {ok: 1b}" : "Found no elements matching result";
+  if (command === "data get storage agent_api:out result") {
+    return stored ? "Storage agent_api:out has the following contents: {ok: 1b}" : "Found no elements matching result";
   }
   if (command === "list uuids") {
     return "There are 2 of a max of 20 players online: Alex (069a79f4-44e9-4726-a5be-fca90e38aaf5), Sam_2 (11111111-2222-3333-4444-555555555555)";
@@ -36,7 +36,7 @@ afterAll(() => (rcon.close(), server.close()));
 test("callApi clears the last result first", async () => {
   const ping = await callApi(rcon, "ping");
   expect(ping.result).toBe("{ok: 1b}");
-  expect(ping.ran).toBe("Running function claude_api:api/ping\nFunction claude_api:api/ping returned 1");
+  expect(ping.ran).toBe("Running function agent_api:api/ping\nFunction agent_api:api/ping returned 1");
   // A function that doesn't exist writes nothing, so its result is null
   expect((await callApi(rcon, "missing")).result).toBeNull();
 });
@@ -79,4 +79,11 @@ test("entities splits the joined messages", async () => {
   expect(log.at(-1)).toBe(
     "execute as @e[type=!minecraft:player,x=-8,y=60,z=-8,dx=16,dy=10,dz=16] run data get entity @s Pos",
   );
+});
+
+test("say shows the agent's name", async () => {
+  await say(rcon, "hi");
+  expect(log.at(-1)).toContain('"<Agent> "');
+  await say(rcon, "hi", "Pi");
+  expect(log.at(-1)).toContain('"<Pi> "');
 });

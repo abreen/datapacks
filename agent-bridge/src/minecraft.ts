@@ -8,7 +8,7 @@ const API_NAME = /^[a-z0-9_]+(\/[a-z0-9_]+)*$/;
 const NAME_AND_UUID = /([A-Za-z0-9_]{1,16}) \(([0-9a-f-]{36})\)/g;
 
 /**
- * Calls a claude_api data pack function. The arguments go through storage
+ * Calls a agent_api data pack function. The arguments go through storage
  * so the bridge does the SNBT escaping, not the macro substitution.
  */
 export function callApi(rcon: Rcon, name: string, args: Record<string, unknown> = {}) {
@@ -18,12 +18,12 @@ export function callApi(rcon: Rcon, name: string, args: Record<string, unknown> 
   // or results
   return rcon.exclusive(async (run) => {
     // Cleared first, so a call that fails can't return the last call's result
-    await run("data remove storage claude_api:out result");
-    await run(`data modify storage claude_api:in args set value ${toSnbt(args)}`);
+    await run("data remove storage agent_api:out result");
+    await run(`data modify storage agent_api:in args set value ${toSnbt(args)}`);
     // RCON joins a command's messages with no separator; split them again
-    const ran = (await run(`function claude_api:api/${name} with storage claude_api:in args`))
-      .replace(/(?<=.)(?=Function claude_api:)/g, "\n");
-    const got = await run("data get storage claude_api:out result");
+    const ran = (await run(`function agent_api:api/${name} with storage agent_api:in args`))
+      .replace(/(?<=.)(?=Function agent_api:)/g, "\n");
+    const got = await run("data get storage agent_api:out result");
     const result = got.includes("has the following contents: ") ? afterColon(got) : null;
     return { ran, result };
   });
@@ -38,11 +38,11 @@ function checkArg(key: string, value: unknown) {
 }
 
 /**
- * Whether claude_api:config/enable is on. False when the score can't be read
+ * Whether agent_api:config/enable is on. False when the score can't be read
  * (pack not loaded, or uninstalled), so the switch fails closed.
  */
 export async function writesAllowed(run: Run) {
-  const got = await run("scoreboard players get #enabled claude_api.config");
+  const got = await run("scoreboard players get #enabled agent_api.config");
   return got.match(/has (-?\d+)/)?.[1] === "1";
 }
 
@@ -54,7 +54,7 @@ export function runCommands(rcon: Rcon, commands: string[]) {
   return rcon.exclusive(async (run) => {
     if (!(await writesAllowed(run))) {
       throw new Error(
-        "Claude's commands are turned off: claude_api:config/disable is on, or the claude-api pack isn't loaded",
+        "The agent's commands are turned off: agent_api:config/disable is on, or the agent-api pack isn't loaded",
       );
     }
     const out: { command: string; response?: string; error?: string }[] = [];
@@ -86,13 +86,13 @@ export function players(rcon: Rcon) {
   });
 }
 
-/** Shows a chat message from Claude to everyone. */
-export function say(rcon: Rcon, text: string) {
-  const message = [{ text: "<Claude> ", color: "aqua" }, { text }];
+/** Shows a chat message from the agent, as <name>, to everyone. */
+export function say(rcon: Rcon, text: string, name = "Agent") {
+  const message = [{ text: `<${name}> `, color: "aqua" }, { text }];
   return rcon.run(`tellraw @a ${toSnbt(message)}`);
 }
 
-// "Storage claude_api:out has the following contents: {ok: 1b}" -> "{ok: 1b}"
+// "Storage agent_api:out has the following contents: {ok: 1b}" -> "{ok: 1b}"
 function afterColon(s: string) {
   const i = s.indexOf(": ");
   return i === -1 ? s : s.slice(i + 2);

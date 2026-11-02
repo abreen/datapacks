@@ -1,8 +1,8 @@
-# Claude API
+# Agent API
 
-A small command API for Claude (through [claude-bridge](../claude-bridge))
+A small command API for any MCP-compatible AI agent (through [agent-bridge](../agent-bridge))
 to query and build in the world over RCON. Each function under `api/`
-writes its answer to `storage claude_api:out result`, which the bridge
+writes its answer to `storage agent_api:out result`, which the bridge
 reads back with `/data get`.
 
 ## Functions
@@ -14,8 +14,8 @@ reads back with `/data get`.
 | `api/setblock` | `x`, `y`, `z`, `block` | `{ok}` |
 | `api/fill` | `x1`, `y1`, `z1`, `x2`, `y2`, `z2`, `block` | `{ok, count}` |
 
-The bridge puts the arguments in `storage claude_api:in args` and runs
-`function claude_api:api/<name> with storage claude_api:in args`.
+The bridge puts the arguments in `storage agent_api:in args` and runs
+`function agent_api:api/<name> with storage agent_api:in args`.
 
 ## Configuration
 
@@ -23,13 +23,13 @@ The bridge puts the arguments in `storage claude_api:in args` and runs
 | --- | --- |
 | `config/disable` | Blocks `setblock` and `fill` (they answer `error:"disabled"`) and the bridge's `run_commands`; queries still work |
 | `config/enable` | Allows them again (the default) |
-| `config/show` | Shows whether Claude can change the world; from the console or RCON, it returns 1 if so and 0 if not |
+| `config/show` | Shows whether the agent can change the world; from the console or RCON, it returns 1 if so and 0 if not |
 
 ## Uninstalling
 
-Run `/function claude_api:uninstall`, then `/datapack disable` the pack and
+Run `/function agent_api:uninstall`, then `/datapack disable` the pack and
 `/reload`.
 
 ## Compatibility
 
-Uses the `claude_api` namespace only and changes no game rules.
+Uses the `agent_api` namespace only and changes no game rules.
