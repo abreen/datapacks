@@ -1,8 +1,7 @@
-# Removes the pack's scoreboards, storage, bed markers and labels.
+# Removes the pack's scoreboards, storage and bed markers.
 # Afterwards, disable the pack with /datapack disable and run /reload.
 function bed_tweaks:pick/release_all
 kill @e[type=marker,tag=bed_tweaks.bed]
-kill @e[type=text_display,tag=bed_tweaks.label]
 scoreboard objectives remove bed_tweaks.config
 scoreboard objectives remove bed_tweaks.tmp
 scoreboard objectives remove bed_tweaks.deaths

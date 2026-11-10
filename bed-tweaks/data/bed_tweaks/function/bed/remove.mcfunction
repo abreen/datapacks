@@ -1,3 +1,2 @@
-# Removes this marker and its label
-function bed_tweaks:bed/unlabel
+# Removes this marker
 kill @s

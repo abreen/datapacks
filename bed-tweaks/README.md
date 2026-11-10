@@ -7,7 +7,7 @@ through the night in a straw bed opens the same menu, making straw beds
 one-use teleporters.
 
 ```
-Respawn at another bed? You have 60 seconds: [#1 Red Bed, 120 blocks away] [#4 Blue Bed, 4232 blocks away]
+Respawn at another bed? You have 60 seconds: [Red Bed, 120 blocks away] [Blue Bed, 4232 blocks away]
 ```
 
 ## How it works
@@ -15,9 +15,8 @@ Respawn at another bed? You have 60 seconds: [#1 Red Bed, 120 blocks away] [#4 B
 - **Placing a bed** (a `placed_block` advancement) follows your line of sight
   to the new bed, records it in storage `bed_tweaks:beds` with your UUID, and
   puts an invisible marker on it. You get a message: "You can now respawn at
-  this bed." Each bed gets a number, which floats over it (this can be
-  turned off) and appears in the menu. Only beds you place count; beds placed in dimensions where they
-  can't set a spawn point (the Nether, the End) aren't recorded.
+  this bed." Only beds you place count; beds placed in dimensions where
+  they can't set a spawn point (the Nether, the End) aren't recorded.
 - **Breaking a bed**, by anyone, removes it: its marker notices and you're
   told "You can no longer respawn at your Red Bed; it's gone."
 - **After respawning**, the menu lists your beds with their color and
@@ -51,22 +50,18 @@ Run these as an operator:
 | `/function bed_tweaks:config/set_choose_time {seconds:60}` | How long (0–3600 seconds) the menu can be used; 0 turns the menu off |
 | `/function bed_tweaks:config/straw_beds_on` | Sleeping through the night in a straw bed opens the menu |
 | `/function bed_tweaks:config/straw_beds_off` | Straw beds behave as in vanilla (default) |
-| `/function bed_tweaks:config/labels_on` | Show each bed's number floating over it (default) |
-| `/function bed_tweaks:config/labels_off` | Hide the numbers |
 
 Settings are stored on the `bed_tweaks.config` scoreboard and survive reloads.
 
 ## Uninstalling
 
 Run `/function bed_tweaks:uninstall`. This removes the pack's scoreboards,
-storage, and the markers and number labels on beds in loaded chunks. Then
-disable the pack with `/datapack disable` and run `/reload`.
+storage, and the markers on beds in loaded chunks. Then disable the pack
+with `/datapack disable` and run `/reload`.
 
-Markers and labels in unloaded chunks stay behind. The markers are invisible
-and do nothing, but the labels can still be seen. To avoid that, turn labels
-off with `config/labels_off` and visit your beds before uninstalling, or run
-`/kill @e[type=text_display,tag=bed_tweaks.label]` near any that are left. If
-the pack is installed again, it removes both as their chunks load.
+Markers in unloaded chunks stay behind, but they are invisible and do
+nothing. If the pack is installed again, it removes them as their chunks
+load.
 
 ## Compatibility
 

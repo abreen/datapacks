@@ -19,7 +19,6 @@ scoreboard objectives add bed_tweaks.bed dummy
 # Defaults, only applied if not already configured
 execute unless score #choose_seconds bed_tweaks.config matches 0.. run scoreboard players set #choose_seconds bed_tweaks.config 60
 execute unless score #straw_beds bed_tweaks.config matches 0.. run scoreboard players set #straw_beds bed_tweaks.config 0
-execute unless score #labels bed_tweaks.config matches 0.. run scoreboard players set #labels bed_tweaks.config 1
 
 # Constants for scoreboard math
 scoreboard players set #-1 bed_tweaks.tmp -1

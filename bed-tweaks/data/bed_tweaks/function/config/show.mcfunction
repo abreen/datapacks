@@ -2,5 +2,3 @@ execute if score #choose_seconds bed_tweaks.config matches 1.. run tellraw @s [{
 execute if score #choose_seconds bed_tweaks.config matches 0 run tellraw @s [{text:"[Bed Tweaks] ",color:"gold"},"Picking a bed is ",{text:"off",color:"red"}]
 execute if score #straw_beds bed_tweaks.config matches 1 run tellraw @s [{text:"[Bed Tweaks] ",color:"gold"},"Sleeping in a straw bed lets you travel to your beds: ",{text:"on",color:"yellow"}]
 execute if score #straw_beds bed_tweaks.config matches 0 run tellraw @s [{text:"[Bed Tweaks] ",color:"gold"},"Sleeping in a straw bed lets you travel to your beds: ",{text:"off",color:"red"}]
-execute if score #labels bed_tweaks.config matches 1 run tellraw @s [{text:"[Bed Tweaks] ",color:"gold"},"Bed numbers float over beds: ",{text:"on",color:"yellow"}]
-execute if score #labels bed_tweaks.config matches 0 run tellraw @s [{text:"[Bed Tweaks] ",color:"gold"},"Bed numbers float over beds: ",{text:"off",color:"red"}]
