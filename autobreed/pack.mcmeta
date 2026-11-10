@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "Farm animals breed on their own until they get crowded",
+    "min_format": 121,
+    "max_format": 121
+  }
+}
