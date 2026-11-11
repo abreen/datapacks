@@ -14,7 +14,7 @@ execute at @e[type=minecraft:marker,tag=test_setup.autobreed_origin] run summon 
 execute at @e[type=minecraft:marker,tag=test_setup.autobreed_origin] run summon minecraft:cow ~5.5 ~ ~59.5
 execute at @e[type=minecraft:marker,tag=test_setup.autobreed_origin] run summon minecraft:cow ~7.5 ~ ~59.5
 execute at @e[type=minecraft:marker,tag=test_setup.autobreed_origin] run summon minecraft:cow ~9.5 ~ ~59.5
-# Three cows in the 3x3 pen: never alone as a pair, so they never breed
+# Three cows packed into the 3x3 pen: should breed
 execute at @e[type=minecraft:marker,tag=test_setup.autobreed_origin] run summon minecraft:cow ~55.5 ~ ~55.5
 execute at @e[type=minecraft:marker,tag=test_setup.autobreed_origin] run summon minecraft:cow ~56.5 ~ ~56.5
 execute at @e[type=minecraft:marker,tag=test_setup.autobreed_origin] run summon minecraft:cow ~57.5 ~ ~55.5

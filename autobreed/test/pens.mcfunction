@@ -7,7 +7,7 @@ fill ~54 ~ ~4 ~60 ~1 ~10 minecraft:stone_bricks
 fill ~55 ~ ~5 ~59 ~1 ~9 minecraft:air
 fill ~4 ~ ~54 ~10 ~1 ~60 minecraft:stone_bricks
 fill ~5 ~ ~55 ~9 ~1 ~59 minecraft:air
-# A 3x3 pen: three animals in it are always within 3 blocks of each other, so none can pair
+# A 3x3 pen, where animals are always pressed together
 fill ~54 ~ ~54 ~58 ~1 ~58 minecraft:stone_bricks
 fill ~55 ~ ~55 ~57 ~1 ~57 minecraft:air
 # A 13x13 pen where animals wander apart, as in a real field
